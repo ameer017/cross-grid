@@ -57,10 +57,8 @@ contract EnergyCredits {
         require(recipient != address(0), "Receiver address cannot be zero");
         require(amount <= balances[msg.sender], "Insufficient balance");
 
-        unchecked {
-            balances[msg.sender] -= amount;
-            balances[recipient] += amount;
-        }
+        balances[msg.sender] -= amount;
+        balances[recipient] += amount;
 
         emit Transfer(msg.sender, recipient, amount);
         return true;
@@ -75,10 +73,10 @@ contract EnergyCredits {
     }
 
     function allowance(
-        address owner,
+        address account,
         address spender
     ) external view returns (uint256) {
-        return allowances[owner][spender];
+        return allowances[account][spender];
     }
 
     function transferFrom(
@@ -91,11 +89,9 @@ contract EnergyCredits {
         require(amount <= balances[sender], "Insufficient balance of sender");
         require(amount <= allowances[sender][msg.sender], "Allowance exceeded");
 
-        unchecked {
-            balances[sender] -= amount;
-            allowances[sender][msg.sender] -= amount;
-            balances[recipient] += amount;
-        }
+        balances[sender] -= amount;
+        allowances[sender][msg.sender] -= amount;
+        balances[recipient] += amount;
 
         emit Transfer(sender, recipient, amount);
         return true;
@@ -104,26 +100,21 @@ contract EnergyCredits {
     function burn(uint256 amount) external onlyOwner {
         require(amount <= balances[msg.sender], "Insufficient balance to burn");
 
-        unchecked {
-            balances[msg.sender] -= amount;
-            totalSupply -= amount;
-        }
+        balances[msg.sender] -= amount;
+        totalSupply -= amount;
 
         emit Burn(msg.sender, amount);
         emit Transfer(msg.sender, address(0), amount);
     }
 
     function mint(uint256 amount, address recipient) external onlyOwner {
+        require(recipient != address(0), "Invalid recipient address");
         _mint(recipient, amount);
     }
 
     function _mint(address recipient, uint256 amount) internal {
-        require(recipient != address(0), "Invalid recipient address");
-
-        unchecked {
-            balances[recipient] += amount;
-            totalSupply += amount;
-        }
+        balances[recipient] += amount;
+        totalSupply += amount;
 
         emit Mint(recipient, amount);
         emit Transfer(address(0), recipient, amount);
