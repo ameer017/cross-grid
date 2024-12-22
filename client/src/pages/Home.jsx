@@ -4,7 +4,7 @@ const Home = () => {
   return (
     <main>
       <div
-        className="h-[92vh] bg-cover bg-left bg-blend-multiply relative overflow-hidden"
+        className="h-[100vh] bg-cover bg-left bg-blend-multiply relative overflow-hidden"
         style={{
           backgroundImage:
             'url("https://images.pexels.com/photos/33062/pinwheel-wind-power-enerie-environmental-technology.jpg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2")',
@@ -43,7 +43,7 @@ const Home = () => {
 
           <div className="mt-8">
             <button className="bg-teal-500 hover:bg-teal-600 text-white font-bold py-2 px-4 rounded">
-                Get Started
+              Get Started
             </button>
           </div>
         </div>

@@ -1,33 +1,80 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
+import { FaBars, FaTimes } from "react-icons/fa";
 
 const Navbar = () => {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  const toggleMenu = () => {
+    setIsMenuOpen(!isMenuOpen);
+  };
+
   return (
-    <header className="w-full h-20 flex justify-between items-center px-4">
-      <Link to="/" className="text-3xl font-bold">
+    <header className="w-full h-20 flex justify-between items-center px-4 bg-gray-800 text-white shadow-md fixed top-0 left-0 z-30">
+      <Link to="/" className="text-2xl font-bold">
         Cross Grid
       </Link>
-      <nav>
-        <Link   
+
+      <nav className="hidden md:flex items-center space-x-8">
+        <Link
           to="/about"
-          className="mx-4"
+          className="hover:text-yellow-400 transition duration-300"
         >
           About
         </Link>
-        <Link   
+        <Link
           to="/list-energy"
-          className="mx-4"
+          className="hover:text-yellow-400 transition duration-300"
         >
           List Energy
         </Link>
         <Link
           to="/energy-marketplace"
-          className="mx-4"
+          className="hover:text-yellow-400 transition duration-300"
         >
           Marketplace
         </Link>
+        <appkit-button size="md" />
       </nav>
-      <appkit-button size="md" />
+
+      <button
+        onClick={toggleMenu}
+        className="text-3xl md:hidden focus:outline-none z-40"
+      >
+        {isMenuOpen ? <FaTimes /> : <FaBars />}
+      </button>
+
+      <div
+        className={`absolute top-0 left-0 w-full h-screen bg-gray-900 text-white flex flex-col items-center justify-center transform transition-transform duration-300 ${
+          isMenuOpen ? "translate-x-0" : "-translate-x-full"
+        }`}
+      >
+        <Link
+          to="/about"
+          className="text-xl py-2 hover:text-yellow-400 transition duration-300"
+          onClick={toggleMenu}
+        >
+          About
+        </Link>
+        <Link
+          to="/list-energy"
+          className="text-xl py-2 hover:text-yellow-400 transition duration-300"
+          onClick={toggleMenu}
+        >
+          List Energy
+        </Link>
+        <Link
+          to="/energy-marketplace"
+          className="text-xl py-2 hover:text-yellow-400 transition duration-300"
+          onClick={toggleMenu}
+        >
+          Marketplace
+        </Link>
+
+        <div className="mt-4">
+          <appkit-button size="md" />
+        </div>
+      </div>
     </header>
   );
 };
