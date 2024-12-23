@@ -3,6 +3,7 @@ pragma solidity ^0.8.26;
 
 import {IEnergy} from "./IEnergy.sol";
 import {EnergyMonitoring} from "./EnergyMonitoring.sol";
+import {NotificationsAndSecurity} from "./NotificationsAndSecurity.sol";
 
 contract EnergyTrading {
     struct EnergyListing {
@@ -15,6 +16,7 @@ contract EnergyTrading {
     uint256 public dynamicPrice;
     IEnergy public token;
     EnergyMonitoring public energyMonitoring;
+    NotificationsAndSecurity public notificationsAndSecurity;
     bool internal locked;
     address public owner;
 
@@ -46,12 +48,16 @@ contract EnergyTrading {
     constructor(
         uint256 initialPrice,
         address _token,
-        address _energyMonitoring
+        address _energyMonitoring,
+        address _notificationsAndSecurity
     ) {
         require(initialPrice > 0, "Initial price must be greater than zero");
         dynamicPrice = initialPrice;
         token = IEnergy(_token);
         energyMonitoring = EnergyMonitoring(_energyMonitoring);
+        notificationsAndSecurity = NotificationsAndSecurity(
+            _notificationsAndSecurity
+        );
         owner = msg.sender;
     }
 
@@ -61,8 +67,8 @@ contract EnergyTrading {
      */
 
     function updatePrice() public onlyOwner {
-        uint256 totalSupply = energyMonitoring.totalProduced(owner); // Supply data from monitoring
-        uint256 totalDemand = energyMonitoring.totalConsumed(owner); // Demand data from monitoring
+        uint256 totalSupply = energyMonitoring.totalProduced(owner);
+        uint256 totalDemand = energyMonitoring.totalConsumed(owner);
 
         require(totalSupply > 0, "Supply must be greater than zero");
         require(totalDemand > 0, "Demand must be greater than zero");
@@ -98,6 +104,10 @@ contract EnergyTrading {
         });
 
         emit EnergyListed(msg.sender, amount, dynamicPrice);
+        notificationsAndSecurity.sendTransactionAlert(
+            msg.sender,
+            "Energy listed successfully"
+        );
     }
 
     /**
@@ -132,7 +142,7 @@ contract EnergyTrading {
 
         token.transferFrom(msg.sender, producer, totalCost);
         require(token.approve(producer, totalCost), "Approval failed");
-        
+
         uint256 fee = (totalCost * 1) / 100;
         token.transferFrom(producer, owner, fee);
 
@@ -146,5 +156,19 @@ contract EnergyTrading {
         energyMonitoring.recordConsumption(msg.sender, amount);
 
         emit EnergyBought(producer, msg.sender, amount, listing.price);
+
+        notificationsAndSecurity.sendPaymentAlert(
+            msg.sender,
+            producer,
+            totalCost
+        );
+    }
+
+    function initiateDispute(address respondent, string memory reason) public {
+        notificationsAndSecurity.initiateDispute(respondent, reason);
+    }
+
+    function resolveDispute(uint256 disputeId, string memory resolutionDetails) public onlyOwner {
+        notificationsAndSecurity.resolveDispute(disputeId, resolutionDetails);
     }
 }
