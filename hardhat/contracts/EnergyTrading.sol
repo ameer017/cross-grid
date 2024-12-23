@@ -2,6 +2,7 @@
 pragma solidity ^0.8.26;
 
 import {IEnergy} from "./IEnergy.sol";
+import {EnergyMonitoring} from "./EnergyMonitoring.sol";
 
 contract EnergyTrading {
     struct EnergyListing {
@@ -13,6 +14,7 @@ contract EnergyTrading {
 
     uint256 public dynamicPrice;
     IEnergy public token;
+    EnergyMonitoring public energyMonitoring;
     bool internal locked;
     address public owner;
 
@@ -41,40 +43,52 @@ contract EnergyTrading {
         _;
     }
 
-    constructor(uint256 initialPrice, address _token) {
+    constructor(
+        uint256 initialPrice,
+        address _token,
+        address _energyMonitoring
+    ) {
         require(initialPrice > 0, "Initial price must be greater than zero");
         dynamicPrice = initialPrice;
         token = IEnergy(_token);
+        energyMonitoring = EnergyMonitoring(_energyMonitoring);
         owner = msg.sender;
     }
 
     /**
      * @dev Update the dynamic price based on supply and demand.
-     * @param supply Total energy supply in the system (kWh).
-     * @param demand Total energy demand in the system (kWh).
+     * Fetch total production and consumption from EnergyMonitoring.
      */
 
-    function updatePrice(uint256 supply, uint256 demand) public onlyOwner {
-        require(supply > 0, "Supply must be greater than zero");
-        require(demand > 0, "Demand must be greater than zero");
+    function updatePrice() public onlyOwner {
+        uint256 totalSupply = energyMonitoring.totalProduced(owner); // Supply data from monitoring
+        uint256 totalDemand = energyMonitoring.totalConsumed(owner); // Demand data from monitoring
+
+        require(totalSupply > 0, "Supply must be greater than zero");
+        require(totalDemand > 0, "Demand must be greater than zero");
 
         uint256 oldPrice = dynamicPrice;
-        dynamicPrice = (demand * oldPrice) / supply;
+        dynamicPrice = (totalDemand * oldPrice) / totalSupply;
 
         emit PriceUpdated(oldPrice, dynamicPrice);
     }
 
     /**
      * @dev List energy for sale.
-     * @param amount Amount of energy available (kWh).
+     * Also records production in the EnergyMonitoring contract.
      */
-
-    function listEnergy(uint256 amount) public noReentrancyGuard {
+    function listEnergy(
+        uint256 amount,
+        EnergyMonitoring.EnergyType energyType
+    ) public noReentrancyGuard {
         require(amount > 0, "Amount must be greater than zero");
         require(
             energyListings[msg.sender].active == false,
             "Existing listing must be inactive"
         );
+
+        // Record production
+        energyMonitoring.recordProduction(msg.sender, amount, energyType);
 
         energyListings[msg.sender] = EnergyListing({
             producer: msg.sender,
@@ -87,25 +101,13 @@ contract EnergyTrading {
     }
 
     /**
-     * @dev Register energy demand for a consumer.
-     * @param amount Amount of energy required (kWh).
-     */
-
-    function registerDemand(uint256 amount) public noReentrancyGuard {
-        require(amount > 0, "Amount must be greater than zero");
-        customerDemand[msg.sender] += amount;
-    }
-
-    /**
      * @dev Buy energy from a producer.
-     * @param producer Address of the energy producer.
-     * @param amount Amount of energy to buy (kWh).
+     * Records consumption in the EnergyMonitoring contract.
      */
-
-    function buyEnergy(address producer, uint256 amount)
-        public
-        noReentrancyGuard
-    {
+    function buyEnergy(
+        address producer,
+        uint256 amount
+    ) public noReentrancyGuard {
         EnergyListing storage listing = energyListings[producer];
 
         require(listing.active, "Energy is not available for sale");
@@ -129,8 +131,8 @@ contract EnergyTrading {
         );
 
         token.transferFrom(msg.sender, producer, totalCost);
-        require(token.approve(producer, totalCost));
-
+        require(token.approve(producer, totalCost), "Approval failed");
+        
         uint256 fee = (totalCost * 1) / 100;
         token.transferFrom(producer, owner, fee);
 
@@ -140,6 +142,8 @@ contract EnergyTrading {
         }
 
         customerDemand[msg.sender] -= amount;
+
+        energyMonitoring.recordConsumption(msg.sender, amount);
 
         emit EnergyBought(producer, msg.sender, amount, listing.price);
     }
