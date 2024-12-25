@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { FaBars, FaTimes } from "react-icons/fa";
-
+import { IoMdNotifications } from "react-icons/io";
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
@@ -10,7 +10,7 @@ const Navbar = () => {
   };
 
   return (
-    <header className="w-full h-20 flex justify-between items-center px-4 bg-gray-800 text-white shadow-md fixed top-0 left-0 z-30">
+    <header className="w-full h-20 flex justify-between items-center px-4 text-white bg-gray-900 shadow-md fixed top-0 left-0 z-30">
       <Link to="/" className="text-2xl font-bold">
         Cross Grid
       </Link>
@@ -21,6 +21,18 @@ const Navbar = () => {
           className="hover:text-yellow-400 transition duration-300"
         >
           About
+        </Link>
+        <Link
+          to="/dashboard"
+          className="hover:text-yellow-400 transition duration-300"
+        >
+          Dashboard
+        </Link>
+        <Link
+          to="/dispute-overview"
+          className="hover:text-yellow-400 transition duration-300"
+        >
+          Dispute
         </Link>
         <Link
           to="/list-energy"
@@ -34,6 +46,14 @@ const Navbar = () => {
         >
           Marketplace
         </Link>
+
+        <Link
+          to="/notifications"
+          className="hover:text-yellow-400 transition duration-300"
+        >
+          <IoMdNotifications />
+        </Link>
+
         <appkit-button size="md" />
       </nav>
 
@@ -55,6 +75,20 @@ const Navbar = () => {
           onClick={toggleMenu}
         >
           About
+        </Link>
+        <Link
+          to="/dashboard"
+          className="text-xl py-2 hover:text-yellow-400 transition duration-300"
+          onClick={toggleMenu}
+        >
+          Dashboard
+        </Link>
+        <Link
+          to="/dispute-overview"
+          className="text-xl py-2 hover:text-yellow-400 transition duration-300"
+          onClick={toggleMenu}
+        >
+          Dispute
         </Link>
         <Link
           to="/list-energy"

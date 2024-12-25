@@ -7,6 +7,7 @@ const ListEnergy = ({ contract }) => {
   const [amount, setAmount] = useState("");
   const [dynamicPrice, setDynamicPrice] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [energyType, setEnergyType] = useState("");
 
   const navigate = useNavigate();
   const fetchDynamicPrice = async () => {
@@ -83,6 +84,25 @@ const ListEnergy = ({ contract }) => {
               className="w-full border rounded px-4 py-2 text-gray-800"
               required
             />
+          </div>
+
+          <div className="mt-4">
+            <label className="block text-gray-700 font-medium mb-2">
+              Energy Type
+            </label>
+
+            <select
+              value={energyType}
+              onChange={(e) => setEnergyType(e.target.value)}
+              className="border p-2 w-full"
+              required
+            >
+              <option value="">Select Energy Type</option>
+              <option value="biomass">Bio Mass</option>
+              <option value="solar">Solar</option>
+              <option value="tidal">Tidal</option>
+              <option value="wind">Wind</option>
+            </select>
           </div>
           <button
             type="submit"

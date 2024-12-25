@@ -8,4 +8,4 @@ const NotificationsPage = () => {
 
 export default NotificationsPage
 
-// Display all notifications.
+// Display all notifications..

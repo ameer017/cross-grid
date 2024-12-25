@@ -8,4 +8,4 @@ const DisputesPage = () => {
 
 export default DisputesPage
 
-// Manage disputes.
+// Manage disputes..

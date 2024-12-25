@@ -5,6 +5,9 @@ import Layout from "./components/Layout";
 import About from "./pages/About";
 import MarketPlace from "./pages/MarketPlace";
 import ListEnergy from "./pages/ListEnergy";
+import Dashboard from "./pages/Dashboard";
+import DisputesPage from "./pages/DisputesPage";
+import NotificationsPage from "./pages/NotificationsPage";
 
 function App() {
   return (
@@ -39,6 +42,30 @@ function App() {
           element={
             <Layout>
               <MarketPlace />
+            </Layout>
+          }
+        />
+        <Route
+          path="/dashboard"
+          element={
+            <Layout>
+              <Dashboard />
+            </Layout>
+          }
+        />
+        <Route
+          path="/dispute-overview"
+          element={
+            <Layout>
+              <DisputesPage />
+            </Layout>
+          }
+        />
+        <Route
+          path="/notifications"
+          element={
+            <Layout>
+              <NotificationsPage />
             </Layout>
           }
         />
