@@ -46,8 +46,10 @@ describe("Energy trading contract", async () => {
 
             expect(await energyTrading.dynamicPrice()).to.equal(initialPrice);
 
+
             await energyTrading.updatePrice();
 
+            
             const expectedPrice = totalConsumed * (initialPrice) / (totalProduced);
 
             expect(await energyTrading.dynamicPrice()).to.equal(expectedPrice);
