@@ -4,6 +4,7 @@ pragma solidity ^0.8.26;
 import {IEnergy} from "./IEnergy.sol";
 import {EnergyMonitoring} from "./EnergyMonitoring.sol";
 import {NotificationsAndSecurity} from "./NotificationsAndSecurity.sol";
+import {UserManagement} from "./UserManagement.sol";
 
 contract EnergyTrading {
     struct EnergyListing {
@@ -17,6 +18,8 @@ contract EnergyTrading {
     IEnergy public token;
     EnergyMonitoring public energyMonitoring;
     NotificationsAndSecurity public notificationsAndSecurity;
+    UserManagement public userManagement;
+
     bool internal locked;
     address public owner;
 
@@ -32,6 +35,12 @@ contract EnergyTrading {
         uint256 price
     );
     event PriceUpdated(uint256 oldPrice, uint256 newPrice);
+    event DisputeInitiated(
+        address indexed initiator,
+        address indexed respondent,
+        string reason
+    );
+    event DisputeResolved(uint256 indexed disputeId, string resolutionDetails);
 
     modifier noReentrancyGuard() {
         require(!locked, "Reentrancy is not allowed");
@@ -45,11 +54,38 @@ contract EnergyTrading {
         _;
     }
 
+    modifier onlyRegisteredProducer() {
+        require(
+            userManagement.isRegistered(msg.sender),
+            "User is not registered"
+        );
+        require(
+            userManagement.getUserType(msg.sender) ==
+                UserManagement.UserType.Producer,
+            "Only producers can perform this action"
+        );
+        _;
+    }
+
+    modifier onlyRegisteredConsumer() {
+        require(
+            userManagement.isRegistered(msg.sender),
+            "User is not registered"
+        );
+        require(
+            userManagement.getUserType(msg.sender) ==
+                UserManagement.UserType.Consumer,
+            "Only consumers can perform this action"
+        );
+        _;
+    }
+
     constructor(
         uint256 initialPrice,
         address _token,
         address _energyMonitoring,
-        address _notificationsAndSecurity
+        address _notificationsAndSecurity,
+        address _userManagement
     ) {
         require(initialPrice > 0, "Initial price must be greater than zero");
         dynamicPrice = initialPrice;
@@ -58,6 +94,8 @@ contract EnergyTrading {
         notificationsAndSecurity = NotificationsAndSecurity(
             _notificationsAndSecurity
         );
+        userManagement = UserManagement(_userManagement);
+
         owner = msg.sender;
     }
 
@@ -86,7 +124,7 @@ contract EnergyTrading {
     function listEnergy(
         uint256 amount,
         EnergyMonitoring.EnergyType energyType
-    ) public noReentrancyGuard {
+    ) public noReentrancyGuard onlyRegisteredProducer {
         require(amount > 0, "Amount must be greater than zero");
         require(
             energyListings[msg.sender].active == false,
@@ -166,9 +204,14 @@ contract EnergyTrading {
 
     function initiateDispute(address respondent, string memory reason) public {
         notificationsAndSecurity.initiateDispute(respondent, reason);
+        emit DisputeInitiated(msg.sender, respondent, reason);
     }
 
-    function resolveDispute(uint256 disputeId, string memory resolutionDetails) public onlyOwner {
+    function resolveDispute(
+        uint256 disputeId,
+        string memory resolutionDetails
+    ) public onlyOwner {
         notificationsAndSecurity.resolveDispute(disputeId, resolutionDetails);
+        emit DisputeResolved(disputeId, resolutionDetails);
     }
 }
