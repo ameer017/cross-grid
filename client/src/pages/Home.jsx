@@ -42,7 +42,7 @@ const Home = () => {
           </p>
 
           <div className="mt-8">
-            <button className="bg-teal-500 hover:bg-teal-600 text-white font-bold py-2 px-4 rounded">
+            <button className="bg-teal-500 hover:bg-teal-600 text-white font-bold py-2 px-4 rounded hover:-translate-y-2 hover:transition-all">
               Get Started
             </button>
           </div>
