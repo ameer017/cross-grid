@@ -131,7 +131,7 @@ contract EnergyTrading {
             "Existing listing must be inactive"
         );
 
-        // Record production
+        // Record production.
         energyMonitoring.recordProduction(msg.sender, amount, energyType);
 
         energyListings[msg.sender] = EnergyListing({
