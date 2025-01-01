@@ -1,9 +1,11 @@
-import React from 'react'
+import Notifications from "../components/Notifications"
+
 
 const NotificationsPage = () => {
   return (
-    <div>
-     
+    
+    <div className="px-20 pt-40">
+       <Notifications />
     </div>
   )
 }
