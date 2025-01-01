@@ -1,11 +1,11 @@
-import React from "react";
+import EnergyDashboard from "../components/EnergyDashboard";
+
 
 const Dashboard = () => {
-  return (
-    <div className="space-y-4 mt-[5rem] ">
-      <h1 className="text-2xl font-bold">Dashboard</h1>
+  return <div className="px-20 pt-40">
+       <EnergyDashboard />
     </div>
-  );
+ 
 };
 
 export default Dashboard;
