@@ -2,5 +2,6 @@
   "EnergyTokenModule#EnergyCredits": "0x483E58cA53002E480Ada100355bF8f5D6AF46fC6",
   "EnergMonitoringnModule#EnergyMonitoring": "0xE8f167CB3A8ef049a70e602c3C74076a75D5bc0c",
   "NotSecModule#NotificationsAndSecurity": "0x40B56A4e83eBbE5c0c3Cd45F733cB9EF1E9F01cE",
-  "UserModule#UserManagement": "0xdEdeAEe6d5bf192d46f862AE5389c3Ef7674dC54"
+  "UserModule#UserManagement": "0xdEdeAEe6d5bf192d46f862AE5389c3Ef7674dC54",
+  "EnergyModule#EnergyTrading": "0x5c08215bfC33dCDF7Fa18ab5240dAf32AAcdBA2A"
 }

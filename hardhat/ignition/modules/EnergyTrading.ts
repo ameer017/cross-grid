@@ -1,3 +1,6 @@
+// This setup uses Hardhat Ignition to manage smart contract deployments.
+// Learn more about it at https://hardhat.org/ignition
+
 import { buildModule } from "@nomicfoundation/hardhat-ignition/modules";
 import ADDRESS from "../deployments/chain-4157/deployed_addresses.json";
 import hre from "hardhat";
@@ -24,7 +27,7 @@ const EnergyModule = buildModule("EnergyModule", (m) => {
     }
   });
 
-  const energy = m.contract("EnergySharing", [
+  const energy = m.contract("EnergyTrading", [
     _initialPrice,
     ADDRESS["EnergyTokenModule#EnergyCredits"],
     ADDRESS["EnergMonitoringnModule#EnergyMonitoring"],
