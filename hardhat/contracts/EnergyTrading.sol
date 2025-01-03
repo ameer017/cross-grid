@@ -214,4 +214,54 @@ contract EnergyTrading {
         notificationsAndSecurity.resolveDispute(disputeId, resolutionDetails);
         emit DisputeResolved(disputeId, resolutionDetails);
     }
+
+    /**
+     * @dev Retrieves all energy records for a user from the EnergyMonitoring contract.
+     * @param user address.
+     */
+    function fetchRecords(
+        address user
+    ) public view returns (EnergyMonitoring.EnergyRecord[] memory) {
+        return energyMonitoring.getRecords(user);
+    }
+
+    function resetUserData(address user) public onlyOwner {
+        energyMonitoring.resetData(user);
+    }
+
+    /**
+     * @dev Retrieves all records stored in EnergyMonitoring.
+     */
+
+    function fetchAllRecords()
+        public
+        view
+        returns (EnergyMonitoring.EnergyRecord[] memory)
+    {
+        return energyMonitoring.getAllRecords();
+    }
+
+    function getUserProfile(
+        address userAddress
+    ) external view returns (UserManagement.UserProfile memory) {
+        return userManagement.getUserProfile(userAddress);
+    }
+
+    function isRegistered(address userAddress) external view returns (bool) {
+        return userManagement.isRegistered(userAddress);
+    }
+
+    function getUserType(
+        address userAddress
+    ) external view returns (UserManagement.UserType) {
+        return userManagement.getUserType(userAddress);
+    }
+
+    function updatePreferences(string memory newPreferences) external {
+        userManagement.updatePreferences(newPreferences);
+    }
+
+    function getAllUsers() external view returns (address[] memory) {
+        return userManagement.getAllUsers();
+    }
 }
