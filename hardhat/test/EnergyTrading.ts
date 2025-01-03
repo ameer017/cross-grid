@@ -121,7 +121,7 @@ describe("Energy trading contract", async () => {
             // Approve tokens for the consumer
             const dynamicPrice = await energyTrading.dynamicPrice();
             const totalCost = energyAmount * dynamicPrice; 
-            await token.mint(consumerAccount, totalCost);
+            // await token.mint(consumerAccount, totalCost);
             await token.connect(consumerAccount).approve(energyTrading.target, totalCost);
         
             // Consumer buys energy
