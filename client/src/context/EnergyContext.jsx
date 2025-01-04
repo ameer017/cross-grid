@@ -23,10 +23,11 @@ export const EnergyContextProvider = ({ children }) => {
     if (!readOnlyEnergyContract) return;
 
     try {
-      const data = await readOnlyEnergyContract.getAllRecords();
+      const testContract = new Contract(ABI.address, ABI.abi, readOnlyProvider);
+      const data = await testContract.fetchAllRecords();
       console.log(data);
 
-      setEnergies(data)
+      setEnergies(data);
     } catch (error) {
       console.log("Error fetching data", error);
     }
