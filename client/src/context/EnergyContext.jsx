@@ -25,7 +25,7 @@ export const EnergyContextProvider = ({ children }) => {
     try {
       const testContract = new Contract(ABI.address, ABI.abi, readOnlyProvider);
       const data = await testContract.fetchAllRecords();
-      console.log(data);
+    //   console.log(data);
 
       setEnergies(data);
     } catch (error) {

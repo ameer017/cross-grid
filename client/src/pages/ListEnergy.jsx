@@ -1,41 +1,63 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { ethers } from "ethers";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import { Contract } from "ethers";
+import { readOnlyProvider } from "../util/ReadOnlyProvider";
+import ABI from "../util/EnergyTrading.json";
+import useContract from "../hook/useContract";
 
-const ListEnergy = ({ contract }) => {
+const ListEnergy = () => {
   const [amount, setAmount] = useState("");
   const [dynamicPrice, setDynamicPrice] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [energyType, setEnergyType] = useState("");
 
+  const instance = useContract(true);
+  const contract = new Contract(ABI.address, ABI.abi, readOnlyProvider);
+
+  console.log(instance)
   const navigate = useNavigate();
-  const fetchDynamicPrice = async () => {
-    try {
-      const price = await contract.dynamicPrice();
-      setDynamicPrice(ethers.utils.formatEther(price));
-    } catch (error) {
-      console.error("Error fetching dynamic price:", error);
-    }
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!amount || isNaN(amount) || amount <= 0) {
-      alert("Please enter a valid amount greater than zero.");
+      toast.error("Please enter a valid amount greater than zero.");
+      return;
+    }
+
+    if (!energyType) {
+      toast.error("Please select an energy type.");
+      return;
+    }
+
+    if (!instance) {
+      toast.error("Contract not initialized");
       return;
     }
 
     setIsSubmitting(true);
 
     try {
-      const tx = await contract.listEnergy(
-        ethers.utils.parseEther(amount.toString())
-      );
+      const energyTypeMapping = {
+        solar: 0,
+        wind: 1,
+        biomass: 2,
+        tidal: 3,
+      };
+
+      const energyTypeValue = energyTypeMapping[energyType];
+      if (energyTypeValue === undefined) {
+        toast.error("Invalid energy type selected.");
+        return;
+      }
+      const formattedAmount = ethers.parseUnits(amount.toString(), "ether");
+      const tx = await instance.listEnergy(formattedAmount, energyTypeValue);
       await tx.wait();
       toast.success("Energy successfully listed!");
       setAmount("");
+      setEnergyType("");
       navigate("/energy-marketplace");
     } catch (error) {
       console.error("Error listing energy:", error);
@@ -45,8 +67,18 @@ const ListEnergy = ({ contract }) => {
     }
   };
 
-  React.useEffect(() => {
-    if (contract) fetchDynamicPrice();
+  useEffect(() => {
+    const fetchDynamicPrice = async () => {
+      if (!contract) return;
+      try {
+        const price = await contract.dynamicPrice();
+        setDynamicPrice(ethers.formatEther(price));
+      } catch (error) {
+        console.error("Error fetching dynamic price:", error);
+      }
+    };
+
+    fetchDynamicPrice();
   }, [contract]);
 
   return (

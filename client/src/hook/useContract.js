@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { Contract } from "ethers";
-import CONTRACT from "../util/EnergyTrading.json";
+import ABI from "../util/EnergyTrading.json";
 import useSignerOrProvider from "./useSignerOrProvider";
 
 const useContract = (withSigner = false) => {
@@ -8,9 +8,9 @@ const useContract = (withSigner = false) => {
   return useMemo(() => {
     if (withSigner) {
       if (!signer) return null;
-      return new Contract(CONTRACT.address, CONTRACT.abi, signer);
+      return new Contract(ABI.address, ABI.abi, signer);
     } else {
-      return new Contract(CONTRACT.address, CONTRACT.abi, readOnlyProvider);
+      return new Contract(ABI.address, ABI.abi, readOnlyProvider);
     }
   }, [signer, readOnlyProvider, withSigner]);
 };
