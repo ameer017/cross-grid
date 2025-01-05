@@ -281,9 +281,11 @@ contract EnergySharing {
         return userManagement.getAllUsers();
     }
 
-    function registerUser(UserType userType,
+    function registerUser(
+        UserManagement.UserType userType,
         string memory name,
-        string memory preferences) external {
-            userManagement.registerUser(userType, name, preferences);
+        string memory preferences
+    ) external {
+        userManagement.registerUser(userType, name, preferences);
     }
 }

@@ -8,6 +8,7 @@ import ListEnergy from "./pages/ListEnergy";
 import Dashboard from "./pages/Dashboard";
 import DisputesPage from "./pages/DisputesPage";
 import NotificationsPage from "./pages/NotificationsPage";
+import Register from "./pages/Register";
 
 function App() {
   return (
@@ -64,6 +65,14 @@ function App() {
           element={
             <Layout>
               <NotificationsPage />
+            </Layout>
+          }
+        />
+        <Route
+          path="/get-started"
+          element={
+            <Layout>
+              <Register />
             </Layout>
           }
         />

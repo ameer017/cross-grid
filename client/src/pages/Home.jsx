@@ -1,9 +1,15 @@
 import React, { useEffect, useState } from "react";
 import Loader from "../components/Loader/Loader";
 import Layout from "../components/Layout";
+import { useNavigate } from "react-router-dom";
 
 const Home = () => {
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
+
+  const getStarted = async () => {
+    navigate("get-started");
+  };
 
   useEffect(() => {
     setTimeout(() => {
@@ -57,7 +63,10 @@ const Home = () => {
                   </p>
 
                   <div className="mt-8">
-                    <button className="bg-teal-500 hover:bg-teal-600 text-white font-bold py-2 px-4 rounded hover:-translate-y-2 hover:transition-all">
+                    <button
+                      className="bg-teal-500 hover:bg-teal-600 text-white font-bold py-2 px-4 rounded hover:-translate-y-2 hover:transition-all"
+                      onClick={getStarted}
+                    >
                       Get Started
                     </button>
                   </div>
