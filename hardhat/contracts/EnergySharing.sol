@@ -280,4 +280,10 @@ contract EnergySharing {
     function getAllUsers() external view returns (address[] memory) {
         return userManagement.getAllUsers();
     }
+
+    function registerUser(UserType userType,
+        string memory name,
+        string memory preferences) external {
+            userManagement.registerUser(userType, name, preferences);
+    }
 }

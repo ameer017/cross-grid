@@ -1,9 +1,9 @@
 import { useAppKitProvider } from "@reown/appkit/react";
 import { BrowserProvider } from "ethers";
 import { useEffect, useMemo, useState } from "react";
-import { readOnlyProvider } from "../util/ReadOnlyProvider";
+import { readOnlyProvider } from "../util/readOnlyProvider";
 
-const useSignerOrProvider = async () => {
+const useSignerOrProvider = () => {
   const [signer, updateSigner] = useState();
   const { walletProvider } = useAppKitProvider("eip155");
 

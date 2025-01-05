@@ -3,7 +3,7 @@ import { ethers } from "ethers";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { Contract } from "ethers";
-import { readOnlyProvider } from "../util/ReadOnlyProvider";
+import { readOnlyProvider } from "../util/readOnlyProvider";
 import ABI from "../util/EnergyTrading.json";
 import useContract from "../hook/useContract";
 
@@ -16,29 +16,29 @@ const ListEnergy = () => {
   const instance = useContract(true);
   const contract = new Contract(ABI.address, ABI.abi, readOnlyProvider);
 
-  console.log(instance)
+  // console.log(instance)
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+  
     if (!amount || isNaN(amount) || amount <= 0) {
       toast.error("Please enter a valid amount greater than zero.");
       return;
     }
-
+  
     if (!energyType) {
       toast.error("Please select an energy type.");
       return;
     }
-
+  
     if (!instance) {
       toast.error("Contract not initialized");
       return;
     }
-
+  
     setIsSubmitting(true);
-
+  
     try {
       const energyTypeMapping = {
         solar: 0,
@@ -46,14 +46,35 @@ const ListEnergy = () => {
         biomass: 2,
         tidal: 3,
       };
-
+  
       const energyTypeValue = energyTypeMapping[energyType];
       if (energyTypeValue === undefined) {
         toast.error("Invalid energy type selected.");
         return;
       }
+  
       const formattedAmount = ethers.parseUnits(amount.toString(), "ether");
-      const tx = await instance.listEnergy(formattedAmount, energyTypeValue);
+      console.log("Formatted Amount:", formattedAmount.toString());
+      console.log("Energy Type Value:", energyTypeValue);
+  
+      let estimatedGas;
+      try {
+        estimatedGas = await instance.listEnergy.estimateGas(
+          formattedAmount,
+          energyTypeValue
+        );
+        console.log("Estimated Gas:", estimatedGas.toString());
+      } catch (gasError) {
+        console.error("Gas estimation failed:", gasError);
+        toast.error("Gas estimation failed. Please check inputs.");
+        return;
+      }
+  
+      const tx = await instance.listEnergy(formattedAmount, energyTypeValue, {
+        gasLimit: (estimatedGas * BigInt(120)) / BigInt(100),
+      });
+      console.log("Transaction sent:", tx);
+  
       await tx.wait();
       toast.success("Energy successfully listed!");
       setAmount("");
@@ -66,6 +87,7 @@ const ListEnergy = () => {
       setIsSubmitting(false);
     }
   };
+  
 
   useEffect(() => {
     const fetchDynamicPrice = async () => {
