@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import useContract from "../hook/useContract";
+import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
 
 const Register = () => {
   const [userType, setUserType] = useState("Producer");
@@ -8,6 +10,7 @@ const Register = () => {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
 
+  const navigate = useNavigate();
   const instance = useContract(true);
 
   const handleSubmit = async (e) => {
@@ -22,13 +25,24 @@ const Register = () => {
 
       const userTypeValue = userType === "Producer" ? 0 : 1;
 
-      const tx = await instance.registerUser(userTypeValue, name, preferences);
+      const ES = await instance.registerUser.estimateGas(
+        userTypeValue,
+        name,
+        preferences
+      );
+
+      const tx = await instance.registerUser(userTypeValue, name, preferences, {
+        gasLimit: (ES * BigInt(120)) / BigInt(100),
+      });
       await tx.wait();
 
       setMessage("User registered successfully!");
+      toast.success("User registered successfully!");
+      navigate("/dashboard");
     } catch (error) {
       console.error("Error registering user:", error);
       setMessage(`Error: ${error.message}`);
+      toast.error(`Error: ${error.message}`);
     } finally {
       setLoading(false);
     }

@@ -1,5 +1,5 @@
 {
-  "address": "0x1B57Df4D39cd822dBbd1598d422B1B9a693a6189",
+  "address": "0xcDE4288aEb296A8E6C536041398B164659d3Dd28",
   "abi": [
     {
       "inputs": [
@@ -481,6 +481,29 @@
         }
       ],
       "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "enum UserManagement.UserType",
+          "name": "userType",
+          "type": "uint8"
+        },
+        {
+          "internalType": "string",
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "preferences",
+          "type": "string"
+        }
+      ],
+      "name": "registerUser",
+      "outputs": [],
+      "stateMutability": "nonpayable",
       "type": "function"
     },
     {
