@@ -243,49 +243,48 @@ contract CrossEnergy {
     }
 
     /**
-     * @notice Allows a consumer to buy energy from a producer.
-     * @param producer The address of the producer.
-     * @param amount The amount of energy to buy.
-     */
-    function buyEnergy(
-        address producer,
-        uint256 amount
-    ) public noReentrancyGuard {
-        EnergyListing storage listing = energyListings[producer];
+ * @notice Allows a consumer to buy energy from a producer by specifying the price they are willing to pay.
+ * @param producer The address of the producer.
+ * @param price The price the consumer wants to pay.
+ */
+function buyEnergy(address producer, uint256 price) public noReentrancyGuard {
+    EnergyListing storage listing = energyListings[producer];
 
-        require(listing.active, "Energy is not available for sale");
-        require(
-            listing.amount >= amount,
-            "Producer does not have enough surplus"
-        );
+    require(listing.active, "Energy is not available for sale");
+    require(
+        price > 0 && price <= (listing.amount * listing.price),
+        "Invalid price or exceeds producer's supply"
+    );
 
-        uint256 totalCost = amount * listing.price;
-        require(
-            token.allowance(msg.sender, address(this)) >= totalCost,
-            "Allowance insufficient"
-        );
-        require(
-            token.balanceOf(msg.sender) >= totalCost,
-            "Insufficient token balance"
-        );
+    // Calculate the equivalent energy amount based on the price
+    uint256 amountToBuy = (price * 1000) / listing.price; // in kWh
+    require(amountToBuy <= listing.amount, "Producer does not have enough energy");
 
-        token.transferFrom(msg.sender, producer, totalCost);
+    // Check the buyer's token balance and allowance
+    require(
+        token.allowance(msg.sender, address(this)) >= price,
+        "Allowance insufficient"
+    );
+    require(
+        token.balanceOf(msg.sender) >= price,
+        "Insufficient token balance"
+    );
 
-        uint256 fee = (totalCost * 1) / 100;
-        token.transferFrom(producer, owner, fee);
-        require(token.approve(producer, totalCost), "Approval failed");
+    // Transfer the tokens from the buyer to the producer
+    token.transferFrom(msg.sender, producer, price);
 
-        listing.amount -= amount;
-        if (listing.amount == 0) {
-            listing.active = false;
-        }
-
-        recordConsumption(msg.sender, amount);
-
-        customerDemand[msg.sender] -= amount;
-
-        emit EnergyBought(producer, msg.sender, amount, listing.price);
+    // Adjust the producer's energy supply
+    listing.amount -= amountToBuy;
+    if (listing.amount == 0) {
+        listing.active = false;
     }
+
+    // Record the consumer's energy purchase
+    recordConsumption(msg.sender, amountToBuy);
+
+    emit EnergyBought(producer, msg.sender, amountToBuy, listing.price);
+}
+
 
     /**
      * @dev Record energy production.
@@ -334,9 +333,11 @@ contract CrossEnergy {
      * @param user The address of the user.
      * @return records The list of energy records.
      */
-    function getRecords(
-        address user
-    ) external view returns (EnergyRecord[] memory) {
+    function getRecords(address user)
+        external
+        view
+        returns (EnergyRecord[] memory)
+    {
         return energyRecords[user];
     }
 
@@ -356,9 +357,11 @@ contract CrossEnergy {
      * @param energyType The energy type to convert.
      * @return The string representation of the energy type.
      */
-    function energyTypeToString(
-        EnergyType energyType
-    ) internal pure returns (string memory) {
+    function energyTypeToString(EnergyType energyType)
+        internal
+        pure
+        returns (string memory)
+    {
         if (energyType == EnergyType.Solar) {
             return "Solar";
         } else if (energyType == EnergyType.Wind) {
@@ -378,6 +381,7 @@ contract CrossEnergy {
      * @param reason A brief explanation of the dispute.
      * Emits a {DisputeInitiated} event.
      */
+
     function initiateDispute(address respondent, string memory reason) public {
         disputes.push(
             Dispute({
@@ -400,10 +404,10 @@ contract CrossEnergy {
      * @param resolutionDetails Details about how the dispute was resolved.
      * Emits a {DisputeResolved} event.
      */
-    function resolveDispute(
-        uint256 disputeId,
-        string memory resolutionDetails
-    ) public onlyOwner {
+    function resolveDispute(uint256 disputeId, string memory resolutionDetails)
+        public
+        onlyOwner
+    {
         require(disputeId < disputes.length, "Dispute ID does not exist");
         Dispute storage dispute = disputes[disputeId];
         require(!dispute.resolved, "Dispute already resolved");
@@ -420,9 +424,12 @@ contract CrossEnergy {
      * @param disputeId The ID of the dispute to retrieve.
      * @return A `Dispute` struct containing the dispute details.
      */
-    function getDispute(
-        uint256 disputeId
-    ) public view returns (Dispute memory) {
+
+    function getDispute(uint256 disputeId)
+        public
+        view
+        returns (Dispute memory)
+    {
         require(disputeId < disputes.length, "Dispute ID does not exist");
         return disputes[disputeId];
     }

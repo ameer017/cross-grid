@@ -43,17 +43,18 @@ contract EnergyCredits {
 
     constructor() {
         owner = msg.sender;
-        _mint(owner, 1_000_000_000 * (10 ** decimals));
+        _mint(owner, 1_000_000_000 * (10**decimals));
     }
 
     function balanceOf(address account) external view returns (uint256) {
         return balances[account];
     }
 
-    function transfer(
-        address recipient,
-        uint256 amount
-    ) external noReentrancy returns (bool) {
+    function transfer(address recipient, uint256 amount)
+        external
+        noReentrancy
+        returns (bool)
+    {
         require(recipient != address(0), "Receiver address cannot be zero");
         require(amount <= balances[msg.sender], "Insufficient balance");
 
@@ -72,10 +73,11 @@ contract EnergyCredits {
         return true;
     }
 
-    function allowance(
-        address account,
-        address spender
-    ) external view returns (uint256) {
+    function allowance(address account, address spender)
+        external
+        view
+        returns (uint256)
+    {
         return allowances[account][spender];
     }
 
