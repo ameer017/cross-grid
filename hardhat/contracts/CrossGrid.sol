@@ -4,10 +4,10 @@ pragma solidity ^0.8.26;
 import {IEnergy} from "./IEnergy.sol";
 
 /**
- * @title CrossEnergy
+ * @title CrossGrid
  * @dev A decentralized platform for managing energy production, consumption, and trading using blockchain technology.
  */
-contract CrossEnergy {
+contract CrossGrid {
     uint256 public dynamicPrice;
     IEnergy public token;
 
@@ -56,8 +56,8 @@ contract CrossEnergy {
     address public owner;
     address[] private userList;
     bool internal locked;
-
     Dispute[] public disputes;
+
     mapping(address => EnergyListing) public energyListings;
     mapping(address => uint256) public customerDemand;
     mapping(address => User) public users;
@@ -243,48 +243,53 @@ contract CrossEnergy {
     }
 
     /**
- * @notice Allows a consumer to buy energy from a producer by specifying the price they are willing to pay.
- * @param producer The address of the producer.
- * @param price The price the consumer wants to pay.
- */
-function buyEnergy(address producer, uint256 price) public noReentrancyGuard {
-    EnergyListing storage listing = energyListings[producer];
+     * @notice Allows a consumer to buy energy from a producer by specifying the price they are willing to pay.
+     * @param producer The address of the producer.
+     * @param price The price the consumer wants to pay.
+     */
+    function buyEnergy(
+        address producer,
+        uint256 price
+    ) public noReentrancyGuard {
+        EnergyListing storage listing = energyListings[producer];
 
-    require(listing.active, "Energy is not available for sale");
-    require(
-        price > 0 && price <= (listing.amount * listing.price),
-        "Invalid price or exceeds producer's supply"
-    );
+        require(listing.active, "Energy is not available for sale");
+        require(
+            price > 0 && price <= (listing.amount * listing.price),
+            "Invalid price or exceeds producer's supply"
+        );
 
-    // Calculate the equivalent energy amount based on the price
-    uint256 amountToBuy = (price * 1000) / listing.price; // in kWh
-    require(amountToBuy <= listing.amount, "Producer does not have enough energy");
+        // Calculate the equivalent energy amount based on the price
+        uint256 amountToBuy = (price * 1000) / listing.price; // in kWh
+        require(
+            amountToBuy <= listing.amount,
+            "Producer does not have enough energy"
+        );
 
-    // Check the buyer's token balance and allowance
-    require(
-        token.allowance(msg.sender, address(this)) >= price,
-        "Allowance insufficient"
-    );
-    require(
-        token.balanceOf(msg.sender) >= price,
-        "Insufficient token balance"
-    );
+        // Check the buyer's token balance and allowance
+        require(
+            token.allowance(msg.sender, address(this)) >= price,
+            "Allowance insufficient"
+        );
+        require(
+            token.balanceOf(msg.sender) >= price,
+            "Insufficient token balance"
+        );
 
-    // Transfer the tokens from the buyer to the producer
-    token.transferFrom(msg.sender, producer, price);
+        // Transfer the tokens from the buyer to the producer
+        token.transferFrom(msg.sender, producer, price);
 
-    // Adjust the producer's energy supply
-    listing.amount -= amountToBuy;
-    if (listing.amount == 0) {
-        listing.active = false;
+        // Adjust the producer's energy supply
+        listing.amount -= amountToBuy;
+        if (listing.amount == 0) {
+            listing.active = false;
+        }
+
+        // Record the consumer's energy purchase
+        recordConsumption(msg.sender, amountToBuy);
+
+        emit EnergyBought(producer, msg.sender, amountToBuy, listing.price);
     }
-
-    // Record the consumer's energy purchase
-    recordConsumption(msg.sender, amountToBuy);
-
-    emit EnergyBought(producer, msg.sender, amountToBuy, listing.price);
-}
-
 
     /**
      * @dev Record energy production.
@@ -333,12 +338,44 @@ function buyEnergy(address producer, uint256 price) public noReentrancyGuard {
      * @param user The address of the user.
      * @return records The list of energy records.
      */
-    function getRecords(address user)
-        external
-        view
-        returns (EnergyRecord[] memory)
-    {
+    function getRecords(
+        address user
+    ) external view returns (EnergyRecord[] memory) {
         return energyRecords[user];
+    }
+
+    /**
+     * @notice Retrieves all active energy listings.
+     * @return An array of EnergyListing structs containing all active listings.
+     */
+    function fetchAllEnergyListings()
+        public
+        view
+        returns (EnergyListing[] memory)
+    {
+        uint256 activeListingCount = 0;
+
+        for (uint256 i = 0; i < userList.length; i++) {
+            address user = userList[i];
+            if (energyListings[user].active) {
+                activeListingCount++;
+            }
+        }
+
+        EnergyListing[] memory activeListings = new EnergyListing[](
+            activeListingCount
+        );
+        uint256 index = 0;
+
+        for (uint256 i = 0; i < userList.length; i++) {
+            address user = userList[i];
+            if (energyListings[user].active) {
+                activeListings[index] = energyListings[user];
+                index++;
+            }
+        }
+
+        return activeListings;
     }
 
     /**
@@ -357,11 +394,9 @@ function buyEnergy(address producer, uint256 price) public noReentrancyGuard {
      * @param energyType The energy type to convert.
      * @return The string representation of the energy type.
      */
-    function energyTypeToString(EnergyType energyType)
-        internal
-        pure
-        returns (string memory)
-    {
+    function energyTypeToString(
+        EnergyType energyType
+    ) internal pure returns (string memory) {
         if (energyType == EnergyType.Solar) {
             return "Solar";
         } else if (energyType == EnergyType.Wind) {
@@ -404,10 +439,10 @@ function buyEnergy(address producer, uint256 price) public noReentrancyGuard {
      * @param resolutionDetails Details about how the dispute was resolved.
      * Emits a {DisputeResolved} event.
      */
-    function resolveDispute(uint256 disputeId, string memory resolutionDetails)
-        public
-        onlyOwner
-    {
+    function resolveDispute(
+        uint256 disputeId,
+        string memory resolutionDetails
+    ) public onlyOwner {
         require(disputeId < disputes.length, "Dispute ID does not exist");
         Dispute storage dispute = disputes[disputeId];
         require(!dispute.resolved, "Dispute already resolved");
@@ -425,11 +460,9 @@ function buyEnergy(address producer, uint256 price) public noReentrancyGuard {
      * @return A `Dispute` struct containing the dispute details.
      */
 
-    function getDispute(uint256 disputeId)
-        public
-        view
-        returns (Dispute memory)
-    {
+    function getDispute(
+        uint256 disputeId
+    ) public view returns (Dispute memory) {
         require(disputeId < disputes.length, "Dispute ID does not exist");
         return disputes[disputeId];
     }

@@ -1,5 +1,5 @@
 {
-  "address": "0xcDE4288aEb296A8E6C536041398B164659d3Dd28",
+  "address": "0x8fABC82b3C22B3C5a5C89295f008ab14e4Fc3846",
   "abi": [
     {
       "inputs": [
@@ -12,25 +12,29 @@
           "internalType": "address",
           "name": "_token",
           "type": "address"
-        },
-        {
-          "internalType": "address",
-          "name": "_energyMonitoring",
-          "type": "address"
-        },
-        {
-          "internalType": "address",
-          "name": "_notificationsAndSecurity",
-          "type": "address"
-        },
-        {
-          "internalType": "address",
-          "name": "_userManagement",
-          "type": "address"
         }
       ],
       "stateMutability": "nonpayable",
       "type": "constructor"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "user",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "timestamp",
+          "type": "uint256"
+        }
+      ],
+      "name": "DataReset",
+      "type": "event"
     },
     {
       "anonymous": false,
@@ -113,6 +117,31 @@
         {
           "indexed": true,
           "internalType": "address",
+          "name": "consumer",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "timestamp",
+          "type": "uint256"
+        }
+      ],
+      "name": "EnergyConsumed",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
           "name": "producer",
           "type": "address"
         },
@@ -127,9 +156,46 @@
           "internalType": "uint256",
           "name": "price",
           "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "string",
+          "name": "energyType",
+          "type": "string"
         }
       ],
       "name": "EnergyListed",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "producer",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "enum CrossGrid.EnergyType",
+          "name": "energyType",
+          "type": "uint8"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "timestamp",
+          "type": "uint256"
+        }
+      ],
+      "name": "EnergyProduced",
       "type": "event"
     },
     {
@@ -152,6 +218,25 @@
       "type": "event"
     },
     {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "user",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "enum CrossGrid.UserType",
+          "name": "userType",
+          "type": "uint8"
+        }
+      ],
+      "name": "UserRegistered",
+      "type": "event"
+    },
+    {
       "inputs": [
         {
           "internalType": "address",
@@ -160,7 +245,7 @@
         },
         {
           "internalType": "uint256",
-          "name": "amount",
+          "name": "price",
           "type": "uint256"
         }
       ],
@@ -182,6 +267,50 @@
         {
           "internalType": "uint256",
           "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "disputes",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "initiator",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "respondent",
+          "type": "address"
+        },
+        {
+          "internalType": "string",
+          "name": "reason",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "resolutionDetails",
+          "type": "string"
+        },
+        {
+          "internalType": "bool",
+          "name": "resolved",
+          "type": "bool"
+        },
+        {
+          "internalType": "uint256",
+          "name": "timestamp",
           "type": "uint256"
         }
       ],
@@ -227,6 +356,11 @@
           "type": "uint256"
         },
         {
+          "internalType": "enum CrossGrid.EnergyType",
+          "name": "energyType",
+          "type": "uint8"
+        },
+        {
           "internalType": "bool",
           "name": "active",
           "type": "bool"
@@ -237,86 +371,37 @@
     },
     {
       "inputs": [],
-      "name": "energyMonitoring",
-      "outputs": [
-        {
-          "internalType": "contract EnergyMonitoring",
-          "name": "",
-          "type": "address"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "fetchAllRecords",
+      "name": "fetchAllEnergyListings",
       "outputs": [
         {
           "components": [
             {
+              "internalType": "address",
+              "name": "producer",
+              "type": "address"
+            },
+            {
               "internalType": "uint256",
-              "name": "produced",
+              "name": "amount",
               "type": "uint256"
             },
             {
               "internalType": "uint256",
-              "name": "consumed",
+              "name": "price",
               "type": "uint256"
             },
             {
-              "internalType": "uint256",
-              "name": "timestamp",
-              "type": "uint256"
-            },
-            {
-              "internalType": "enum EnergyMonitoring.EnergyType",
+              "internalType": "enum CrossGrid.EnergyType",
               "name": "energyType",
               "type": "uint8"
+            },
+            {
+              "internalType": "bool",
+              "name": "active",
+              "type": "bool"
             }
           ],
-          "internalType": "struct EnergyMonitoring.EnergyRecord[]",
-          "name": "",
-          "type": "tuple[]"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "user",
-          "type": "address"
-        }
-      ],
-      "name": "fetchRecords",
-      "outputs": [
-        {
-          "components": [
-            {
-              "internalType": "uint256",
-              "name": "produced",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
-              "name": "consumed",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
-              "name": "timestamp",
-              "type": "uint256"
-            },
-            {
-              "internalType": "enum EnergyMonitoring.EnergyType",
-              "name": "energyType",
-              "type": "uint8"
-            }
-          ],
-          "internalType": "struct EnergyMonitoring.EnergyRecord[]",
+          "internalType": "struct CrossGrid.EnergyListing[]",
           "name": "",
           "type": "tuple[]"
         }
@@ -340,44 +425,94 @@
     {
       "inputs": [
         {
-          "internalType": "address",
-          "name": "userAddress",
-          "type": "address"
+          "internalType": "uint256",
+          "name": "disputeId",
+          "type": "uint256"
         }
       ],
-      "name": "getUserProfile",
+      "name": "getDispute",
       "outputs": [
         {
           "components": [
             {
-              "internalType": "enum UserManagement.UserType",
-              "name": "userType",
-              "type": "uint8"
+              "internalType": "address",
+              "name": "initiator",
+              "type": "address"
             },
             {
               "internalType": "address",
-              "name": "walletAddress",
+              "name": "respondent",
               "type": "address"
             },
             {
               "internalType": "string",
-              "name": "name",
+              "name": "reason",
               "type": "string"
             },
             {
               "internalType": "string",
-              "name": "preferences",
+              "name": "resolutionDetails",
               "type": "string"
             },
             {
+              "internalType": "bool",
+              "name": "resolved",
+              "type": "bool"
+            },
+            {
               "internalType": "uint256",
-              "name": "createdAt",
+              "name": "timestamp",
               "type": "uint256"
             }
           ],
-          "internalType": "struct UserManagement.UserProfile",
+          "internalType": "struct CrossGrid.Dispute",
           "name": "",
           "type": "tuple"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getDisputes",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "address",
+              "name": "initiator",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "respondent",
+              "type": "address"
+            },
+            {
+              "internalType": "string",
+              "name": "reason",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "resolutionDetails",
+              "type": "string"
+            },
+            {
+              "internalType": "bool",
+              "name": "resolved",
+              "type": "bool"
+            },
+            {
+              "internalType": "uint256",
+              "name": "timestamp",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct CrossGrid.Dispute[]",
+          "name": "",
+          "type": "tuple[]"
         }
       ],
       "stateMutability": "view",
@@ -387,14 +522,55 @@
       "inputs": [
         {
           "internalType": "address",
-          "name": "userAddress",
+          "name": "user",
+          "type": "address"
+        }
+      ],
+      "name": "getRecords",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "uint256",
+              "name": "produced",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "consumed",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "timestamp",
+              "type": "uint256"
+            },
+            {
+              "internalType": "enum CrossGrid.EnergyType",
+              "name": "energyType",
+              "type": "uint8"
+            }
+          ],
+          "internalType": "struct CrossGrid.EnergyRecord[]",
+          "name": "",
+          "type": "tuple[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "user",
           "type": "address"
         }
       ],
       "name": "getUserType",
       "outputs": [
         {
-          "internalType": "enum UserManagement.UserType",
+          "internalType": "enum CrossGrid.UserType",
           "name": "",
           "type": "uint8"
         }
@@ -424,7 +600,7 @@
       "inputs": [
         {
           "internalType": "address",
-          "name": "userAddress",
+          "name": "user",
           "type": "address"
         }
       ],
@@ -447,7 +623,12 @@
           "type": "uint256"
         },
         {
-          "internalType": "enum EnergyMonitoring.EnergyType",
+          "internalType": "uint256",
+          "name": "price",
+          "type": "uint256"
+        },
+        {
+          "internalType": "enum CrossGrid.EnergyType",
           "name": "energyType",
           "type": "uint8"
         }
@@ -455,19 +636,6 @@
       "name": "listEnergy",
       "outputs": [],
       "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "notificationsAndSecurity",
-      "outputs": [
-        {
-          "internalType": "contract NotificationsAndSecurity",
-          "name": "",
-          "type": "address"
-        }
-      ],
-      "stateMutability": "view",
       "type": "function"
     },
     {
@@ -486,19 +654,14 @@
     {
       "inputs": [
         {
-          "internalType": "enum UserManagement.UserType",
+          "internalType": "address",
+          "name": "user",
+          "type": "address"
+        },
+        {
+          "internalType": "enum CrossGrid.UserType",
           "name": "userType",
           "type": "uint8"
-        },
-        {
-          "internalType": "string",
-          "name": "name",
-          "type": "string"
-        },
-        {
-          "internalType": "string",
-          "name": "preferences",
-          "type": "string"
         }
       ],
       "name": "registerUser",
@@ -514,7 +677,7 @@
           "type": "address"
         }
       ],
-      "name": "resetUserData",
+      "name": "resetData",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
@@ -553,14 +716,39 @@
     {
       "inputs": [
         {
-          "internalType": "string",
-          "name": "newPreferences",
-          "type": "string"
+          "internalType": "address",
+          "name": "",
+          "type": "address"
         }
       ],
-      "name": "updatePreferences",
-      "outputs": [],
-      "stateMutability": "nonpayable",
+      "name": "totalConsumed",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "name": "totalProduced",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
       "type": "function"
     },
     {
@@ -571,13 +759,24 @@
       "type": "function"
     },
     {
-      "inputs": [],
-      "name": "userManagement",
-      "outputs": [
+      "inputs": [
         {
-          "internalType": "contract UserManagement",
+          "internalType": "address",
           "name": "",
           "type": "address"
+        }
+      ],
+      "name": "users",
+      "outputs": [
+        {
+          "internalType": "enum CrossGrid.UserType",
+          "name": "userType",
+          "type": "uint8"
+        },
+        {
+          "internalType": "bool",
+          "name": "registered",
+          "type": "bool"
         }
       ],
       "stateMutability": "view",

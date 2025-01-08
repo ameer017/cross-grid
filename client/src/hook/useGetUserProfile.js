@@ -1,6 +1,6 @@
 import { useCallback } from "react";
 import { Contract } from "ethers";
-import { readOnlyProvider } from "../util/ReadOnlyProvider";
+import { readOnlyProvider } from "../util/readOnlyProvider";
 import ABI from "../util/EnergyTrading.json";
 
 const useGetUserProfile = () => {

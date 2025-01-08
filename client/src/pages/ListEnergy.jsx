@@ -5,10 +5,11 @@ import { toast } from "react-toastify";
 import { Contract } from "ethers";
 import ABI from "../util/EnergyTrading.json";
 import useContract from "../hook/useContract";
-import { readOnlyProvider } from "../util/ReadOnlyProvider";
+import { readOnlyProvider } from "../util/readOnlyProvider";
 
 const ListEnergy = () => {
   const [amount, setAmount] = useState("");
+  const [price, setPrice] = useState("");
   const [dynamicPrice, setDynamicPrice] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [energyType, setEnergyType] = useState("");
@@ -21,24 +22,29 @@ const ListEnergy = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+
     if (!amount || isNaN(amount) || amount <= 0) {
       toast.error("Please enter a valid amount greater than zero.");
       return;
     }
-  
+
     if (!energyType) {
       toast.error("Please select an energy type.");
       return;
     }
-  
+
+    if (!price || isNaN(price) || price <= 0) {
+      toast.error("Please include a valid price per kWh.");
+      return;
+    }
+
     if (!instance) {
       toast.error("Contract not initialized");
       return;
     }
-  
+
     setIsSubmitting(true);
-  
+
     try {
       const energyTypeMapping = {
         solar: 0,
@@ -46,21 +52,24 @@ const ListEnergy = () => {
         biomass: 2,
         tidal: 3,
       };
-  
+
       const energyTypeValue = energyTypeMapping[energyType];
       if (energyTypeValue === undefined) {
         toast.error("Invalid energy type selected.");
         return;
       }
-  
-      const formattedAmount = ethers.parseUnits(amount.toString(), "ether");
-      console.log("Formatted Amount:", formattedAmount.toString());
+
+      // const formattedAmount = ethers.parseUnits(amount.toString(), "ether");
+      const formattedPrice = ethers.parseUnits(price.toString(), "ether");
+      // console.log("Formatted Amount:", formattedAmount.toString());
+      console.log("Formatted Price:", formattedPrice.toString());
       console.log("Energy Type Value:", energyTypeValue);
-  
+
       let estimatedGas;
       try {
         estimatedGas = await instance.listEnergy.estimateGas(
-          formattedAmount,
+          amount,
+          formattedPrice,
           energyTypeValue
         );
         console.log("Estimated Gas:", estimatedGas.toString());
@@ -69,15 +78,21 @@ const ListEnergy = () => {
         toast.error("Gas estimation failed. Please check inputs.");
         return;
       }
-  
-      const tx = await instance.listEnergy(formattedAmount, energyTypeValue, {
-        gasLimit: (estimatedGas * BigInt(120)) / BigInt(100),
-      });
+
+      const tx = await instance.listEnergy(
+        amount,
+        formattedPrice,
+        energyTypeValue,
+        {
+          gasLimit: (estimatedGas * BigInt(120)) / BigInt(100),
+        }
+      );
       console.log("Transaction sent:", tx);
-  
+
       await tx.wait();
       toast.success("Energy successfully listed!");
       setAmount("");
+      setPrice("");
       setEnergyType("");
       navigate("/energy-marketplace");
     } catch (error) {
@@ -87,7 +102,6 @@ const ListEnergy = () => {
       setIsSubmitting(false);
     }
   };
-  
 
   useEffect(() => {
     const fetchDynamicPrice = async () => {
@@ -139,6 +153,19 @@ const ListEnergy = () => {
               required
             />
           </div>
+          <div className="mt-4">
+            <label className="block text-gray-700 font-medium mb-2">
+              Price per kWh (ETC)
+            </label>
+            <input
+              type="text"
+              value={price}
+              onChange={(e) => setPrice(e.target.value)}
+              placeholder="Enter price per kWh"
+              className="w-full border rounded px-4 py-2 text-gray-800"
+              required
+            />
+          </div>
 
           <div className="mt-4">
             <label className="block text-gray-700 font-medium mb-2">
@@ -152,10 +179,10 @@ const ListEnergy = () => {
               required
             >
               <option value="">Select Energy Type</option>
-              <option value="biomass">Bio Mass</option>
               <option value="solar">Solar</option>
-              <option value="tidal">Tidal</option>
               <option value="wind">Wind</option>
+              <option value="biomass">Bio Mass</option>
+              <option value="tidal">Tidal</option>
             </select>
           </div>
           <button

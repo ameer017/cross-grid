@@ -7,11 +7,12 @@ import {
 } from "react";
 import useContract from "../hook/useContract";
 import { Contract } from "ethers";
-import { readOnlyProvider } from "../util/ReadOnlyProvider";
+import { readOnlyProvider } from "../util/readOnlyProvider";
 import ABI from "../util/EnergyTrading.json";
 
 const EnergyContext = createContext({
   energies: [],
+  reloadEnergies: () => {},
 });
 
 export const EnergyContextProvider = ({ children }) => {
@@ -24,7 +25,7 @@ export const EnergyContextProvider = ({ children }) => {
 
     try {
       const testContract = new Contract(ABI.address, ABI.abi, readOnlyProvider);
-      const data = await testContract.fetchAllRecords();
+      const data = await testContract.fetchAllEnergyListings();
     //   console.log(data);
 
       setEnergies(data);
