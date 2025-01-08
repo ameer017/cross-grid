@@ -378,7 +378,6 @@ contract CrossEnergy {
      * @param reason A brief explanation of the dispute.
      * Emits a {DisputeInitiated} event.
      */
-
     function initiateDispute(address respondent, string memory reason) public {
         disputes.push(
             Dispute({
@@ -421,7 +420,6 @@ contract CrossEnergy {
      * @param disputeId The ID of the dispute to retrieve.
      * @return A `Dispute` struct containing the dispute details.
      */
-
     function getDispute(
         uint256 disputeId
     ) public view returns (Dispute memory) {
