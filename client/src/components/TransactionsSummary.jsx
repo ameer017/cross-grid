@@ -7,11 +7,11 @@ import {
   Type,
   Zap,
 } from "lucide-react";
-import { readOnlyProvider } from "../util/readOnlyProvider";
 import { Contract, ethers } from "ethers";
 import ABI from "../util/EnergyTrading.json";
 import { useEffect, useState } from "react";
 import { useAppKitAccount } from "@reown/appkit/react";
+import { readOnlyProvider } from "../constant/readProvider";
 
 const TransactionsSummary = () => {
   const [loading, setLoading] = useState(true);

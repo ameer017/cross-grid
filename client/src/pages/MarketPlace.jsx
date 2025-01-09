@@ -1,8 +1,8 @@
 import EnergyList from "../components/EnergyList";
-import { readOnlyProvider } from "../util/readOnlyProvider";
 import { Contract, ethers } from "ethers";
 import ABI from "../util/EnergyTrading.json";
 import { useEffect, useState } from "react";
+import { readOnlyProvider } from "../constant/readProvider";
 
 const MarketPlace = () => {
   const [data, setData] = useState([]);

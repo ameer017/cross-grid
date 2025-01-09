@@ -5,7 +5,7 @@ import { toast } from "react-toastify";
 import { Contract } from "ethers";
 import ABI from "../util/EnergyTrading.json";
 import useContract from "../hook/useContract";
-import { readOnlyProvider } from "../util/readOnlyProvider";
+import { readOnlyProvider } from "../constant/readProvider";
 
 const ListEnergy = () => {
   const [amount, setAmount] = useState("");

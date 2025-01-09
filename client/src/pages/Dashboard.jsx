@@ -2,8 +2,8 @@ import { useState, useEffect } from "react";
 import { Contract } from "ethers";
 import EnergyDashboard from "../components/EnergyDashboard";
 import { useAppKitAccount } from "@reown/appkit/react";
-import { readOnlyProvider } from "../util/readOnlyProvider";
 import ABI from "../util/EnergyTrading.json";
+import { readOnlyProvider } from "../constant/readProvider";
 
 const Dashboard = () => {
   const { address } = useAppKitAccount();
