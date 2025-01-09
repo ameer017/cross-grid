@@ -1,5 +1,5 @@
 {
-  "address": "0x8fABC82b3C22B3C5a5C89295f008ab14e4Fc3846",
+  "address": "0xB3A3B5aB4Df8800ca9Fb49665a98CC7e5147f206",
   "abi": [
     {
       "inputs": [
@@ -184,7 +184,7 @@
         },
         {
           "indexed": false,
-          "internalType": "enum CrossGrid.EnergyType",
+          "internalType": "enum CrossGridResource.EnergyType",
           "name": "energyType",
           "type": "uint8"
         },
@@ -228,7 +228,7 @@
         },
         {
           "indexed": false,
-          "internalType": "enum CrossGrid.UserType",
+          "internalType": "enum CrossGridResource.UserType",
           "name": "userType",
           "type": "uint8"
         }
@@ -245,6 +245,11 @@
         },
         {
           "internalType": "uint256",
+          "name": "listingIndex",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
           "name": "price",
           "type": "uint256"
         }
@@ -252,6 +257,40 @@
       "name": "buyEnergy",
       "outputs": [],
       "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "consumedRecords",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "consumed",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "timestamp",
+          "type": "uint256"
+        },
+        {
+          "internalType": "enum CrossGridResource.EnergyType",
+          "name": "energyType",
+          "type": "uint8"
+        }
+      ],
+      "stateMutability": "view",
       "type": "function"
     },
     {
@@ -336,6 +375,11 @@
           "internalType": "address",
           "name": "",
           "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
         }
       ],
       "name": "energyListings",
@@ -356,7 +400,7 @@
           "type": "uint256"
         },
         {
-          "internalType": "enum CrossGrid.EnergyType",
+          "internalType": "enum CrossGridResource.EnergyType",
           "name": "energyType",
           "type": "uint8"
         },
@@ -391,7 +435,7 @@
               "type": "uint256"
             },
             {
-              "internalType": "enum CrossGrid.EnergyType",
+              "internalType": "enum CrossGridResource.EnergyType",
               "name": "energyType",
               "type": "uint8"
             },
@@ -401,9 +445,35 @@
               "type": "bool"
             }
           ],
-          "internalType": "struct CrossGrid.EnergyListing[]",
+          "internalType": "struct CrossGridResource.EnergyListing[]",
           "name": "",
           "type": "tuple[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getAggregatedDemand",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getAggregatedSupply",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
         }
       ],
       "stateMutability": "view",
@@ -417,6 +487,42 @@
           "internalType": "address[]",
           "name": "",
           "type": "address[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "user",
+          "type": "address"
+        }
+      ],
+      "name": "getConsumedRecords",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "uint256",
+              "name": "consumed",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "timestamp",
+              "type": "uint256"
+            },
+            {
+              "internalType": "enum CrossGridResource.EnergyType",
+              "name": "energyType",
+              "type": "uint8"
+            }
+          ],
+          "internalType": "struct CrossGridResource.EnergyConsumedRecord[]",
+          "name": "",
+          "type": "tuple[]"
         }
       ],
       "stateMutability": "view",
@@ -465,7 +571,7 @@
               "type": "uint256"
             }
           ],
-          "internalType": "struct CrossGrid.Dispute",
+          "internalType": "struct CrossGridResource.Dispute",
           "name": "",
           "type": "tuple"
         }
@@ -510,7 +616,53 @@
               "type": "uint256"
             }
           ],
-          "internalType": "struct CrossGrid.Dispute[]",
+          "internalType": "struct CrossGridResource.Dispute[]",
+          "name": "",
+          "type": "tuple[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "producer",
+          "type": "address"
+        }
+      ],
+      "name": "getListings",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "address",
+              "name": "producer",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "amount",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "price",
+              "type": "uint256"
+            },
+            {
+              "internalType": "enum CrossGridResource.EnergyType",
+              "name": "energyType",
+              "type": "uint8"
+            },
+            {
+              "internalType": "bool",
+              "name": "active",
+              "type": "bool"
+            }
+          ],
+          "internalType": "struct CrossGridResource.EnergyListing[]",
           "name": "",
           "type": "tuple[]"
         }
@@ -526,7 +678,7 @@
           "type": "address"
         }
       ],
-      "name": "getRecords",
+      "name": "getProducedRecords",
       "outputs": [
         {
           "components": [
@@ -537,21 +689,16 @@
             },
             {
               "internalType": "uint256",
-              "name": "consumed",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
               "name": "timestamp",
               "type": "uint256"
             },
             {
-              "internalType": "enum CrossGrid.EnergyType",
+              "internalType": "enum CrossGridResource.EnergyType",
               "name": "energyType",
               "type": "uint8"
             }
           ],
-          "internalType": "struct CrossGrid.EnergyRecord[]",
+          "internalType": "struct CrossGridResource.EnergyProducedRecord[]",
           "name": "",
           "type": "tuple[]"
         }
@@ -570,7 +717,7 @@
       "name": "getUserType",
       "outputs": [
         {
-          "internalType": "enum CrossGrid.UserType",
+          "internalType": "enum CrossGridResource.UserType",
           "name": "",
           "type": "uint8"
         }
@@ -628,7 +775,7 @@
           "type": "uint256"
         },
         {
-          "internalType": "enum CrossGrid.EnergyType",
+          "internalType": "enum CrossGridResource.EnergyType",
           "name": "energyType",
           "type": "uint8"
         }
@@ -655,11 +802,45 @@
       "inputs": [
         {
           "internalType": "address",
+          "name": "",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "producedRecords",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "produced",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "timestamp",
+          "type": "uint256"
+        },
+        {
+          "internalType": "enum CrossGridResource.EnergyType",
+          "name": "energyType",
+          "type": "uint8"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
           "name": "user",
           "type": "address"
         },
         {
-          "internalType": "enum CrossGrid.UserType",
+          "internalType": "enum CrossGridResource.UserType",
           "name": "userType",
           "type": "uint8"
         }
@@ -733,6 +914,19 @@
       "type": "function"
     },
     {
+      "inputs": [],
+      "name": "totalDemandAggregated",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
       "inputs": [
         {
           "internalType": "address",
@@ -741,6 +935,19 @@
         }
       ],
       "name": "totalProduced",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "totalSupplyAggregated",
       "outputs": [
         {
           "internalType": "uint256",
@@ -766,10 +973,48 @@
           "type": "address"
         }
       ],
+      "name": "userEarned",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "name": "userSpent",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
       "name": "users",
       "outputs": [
         {
-          "internalType": "enum CrossGrid.UserType",
+          "internalType": "enum CrossGridResource.UserType",
           "name": "userType",
           "type": "uint8"
         },

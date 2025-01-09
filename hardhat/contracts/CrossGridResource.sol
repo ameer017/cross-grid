@@ -4,10 +4,10 @@ pragma solidity ^0.8.26;
 import {IEnergy} from "./IEnergy.sol";
 
 /**
- * @title CrossGrid
+ * @title CrossGridResource
  * @dev A decentralized platform for managing energy production, consumption, and trading using blockchain technology.
  */
-contract CrossGrid {
+contract CrossGridResource {
     uint256 public dynamicPrice;
     IEnergy public token;
 
@@ -25,13 +25,6 @@ contract CrossGrid {
         Wind,
         Biomass,
         Tidal
-    }
-
-    struct EnergyRecord {
-        uint256 produced;
-        uint256 consumed;
-        uint256 timestamp;
-        EnergyType energyType;
     }
 
     struct EnergyListing {
@@ -53,17 +46,34 @@ contract CrossGrid {
         bool registered;
     }
 
+    struct EnergyProducedRecord {
+        uint256 produced;
+        uint256 timestamp;
+        EnergyType energyType;
+    }
+
+    struct EnergyConsumedRecord {
+        uint256 consumed;
+        uint256 timestamp;
+        EnergyType energyType;
+    }
+
     address public owner;
     address[] private userList;
     bool internal locked;
     Dispute[] public disputes;
+    uint256 public totalSupplyAggregated;
+    uint256 public totalDemandAggregated;
 
-    mapping(address => EnergyListing) public energyListings;
+    mapping(address => EnergyListing[]) public energyListings;
+    mapping(address => EnergyProducedRecord[]) public producedRecords;
+    mapping(address => EnergyConsumedRecord[]) public consumedRecords;
     mapping(address => uint256) public customerDemand;
     mapping(address => User) public users;
-    mapping(address => EnergyRecord[]) private energyRecords;
     mapping(address => uint256) public totalProduced;
     mapping(address => uint256) public totalConsumed;
+    mapping(address => uint256) public userEarned;
+    mapping(address => uint256) public userSpent;
 
     event DataReset(address indexed user, uint256 timestamp);
     event DisputeInitiated(
@@ -215,21 +225,17 @@ contract CrossGrid {
         require(amount > 0, "Amount must be greater than zero");
         require(price > 0, "Price must be greater than zero");
 
-        require(
-            energyListings[msg.sender].active == false,
-            "Existing listing must be inactive"
+        totalSupplyAggregated += amount;
+
+        energyListings[msg.sender].push(
+            EnergyListing({
+                producer: msg.sender,
+                amount: amount,
+                price: price,
+                energyType: energyType,
+                active: true
+            })
         );
-
-        // Check production data without modifying it.
-        totalProduced[msg.sender];
-
-        energyListings[msg.sender] = EnergyListing({
-            producer: msg.sender,
-            amount: amount,
-            price: price,
-            energyType: energyType,
-            active: true
-        });
 
         // Record production.
         recordProduction(msg.sender, amount, energyType);
@@ -249,9 +255,10 @@ contract CrossGrid {
      */
     function buyEnergy(
         address producer,
+        uint256 listingIndex,
         uint256 price
     ) public noReentrancyGuard {
-        EnergyListing storage listing = energyListings[producer];
+        EnergyListing storage listing = energyListings[producer][listingIndex];
 
         require(listing.active, "Energy is not available for sale");
         require(
@@ -279,14 +286,19 @@ contract CrossGrid {
         // Transfer the tokens from the buyer to the producer
         token.transferFrom(msg.sender, producer, price);
 
+        totalSupplyAggregated -= amountToBuy;
+        totalDemandAggregated += amountToBuy;
         // Adjust the producer's energy supply
         listing.amount -= amountToBuy;
         if (listing.amount == 0) {
             listing.active = false;
         }
 
+        userEarned[producer] += price;
+        userSpent[msg.sender] += price;
+
         // Record the consumer's energy purchase
-        recordConsumption(msg.sender, amountToBuy);
+        recordConsumption(msg.sender, amountToBuy, listing.energyType);
 
         emit EnergyBought(producer, msg.sender, amountToBuy, listing.price);
     }
@@ -302,10 +314,9 @@ contract CrossGrid {
         require(amount > 0, "Produced amount must be greater than zero");
 
         totalProduced[producer] += amount;
-        energyRecords[producer].push(
-            EnergyRecord({
+        producedRecords[producer].push(
+            EnergyProducedRecord({
                 produced: amount,
-                consumed: 0,
                 timestamp: block.timestamp,
                 energyType: energyType
             })
@@ -317,16 +328,19 @@ contract CrossGrid {
     /**
      * @dev Record energy consumption.
      */
-    function recordConsumption(address consumer, uint256 amount) internal {
+    function recordConsumption(
+        address consumer,
+        uint256 amount,
+        EnergyType energyType
+    ) internal {
         require(amount > 0, "Consumed amount must be greater than zero");
 
         totalConsumed[consumer] += amount;
-        energyRecords[consumer].push(
-            EnergyRecord({
-                produced: 0,
+        consumedRecords[consumer].push(
+            EnergyConsumedRecord({
                 consumed: amount,
                 timestamp: block.timestamp,
-                energyType: EnergyType.Solar
+                energyType: energyType
             })
         );
 
@@ -334,14 +348,32 @@ contract CrossGrid {
     }
 
     /**
-     * @notice Retrieves energy records for a user.
-     * @param user The address of the user.
-     * @return records The list of energy records.
+     * @dev Returns the list of energy produced records for a given user.
+     * Each record contains details about the produced energy, including
+     * the amount, timestamp, and energy type.
+     *
+     * @param user The address of the user whose production records are being queried.
+     * @return An array of `EnergyProducedRecord` structs, containing the energy production details.
      */
-    function getRecords(
+
+    function getProducedRecords(
         address user
-    ) external view returns (EnergyRecord[] memory) {
-        return energyRecords[user];
+    ) external view returns (EnergyProducedRecord[] memory) {
+        return producedRecords[user];
+    }
+
+    /**
+     * @dev Returns the list of energy consumed records for a given user.
+     * Each record contains details about the consumed energy, including
+     * the amount, timestamp, and energy type.
+     *
+     * @param user The address of the user whose consumption records are being queried.
+     * @return An array of `EnergyConsumedRecord` structs, containing the energy consumption details.
+     */
+    function getConsumedRecords(
+        address user
+    ) external view returns (EnergyConsumedRecord[] memory) {
+        return consumedRecords[user];
     }
 
     /**
@@ -353,36 +385,66 @@ contract CrossGrid {
         view
         returns (EnergyListing[] memory)
     {
-        uint256 activeListingCount = 0;
+        // Step 1: Count total listings across all users
+        uint256 totalListings = 0;
 
         for (uint256 i = 0; i < userList.length; i++) {
             address user = userList[i];
-            if (energyListings[user].active) {
-                activeListingCount++;
-            }
+            totalListings += energyListings[user].length;
         }
 
-        EnergyListing[] memory activeListings = new EnergyListing[](
-            activeListingCount
-        );
+        // Step 2: Create a dynamic array for all listings
+        EnergyListing[] memory allListings = new EnergyListing[](totalListings);
         uint256 index = 0;
 
+        // Step 3: Populate the array with all listings
         for (uint256 i = 0; i < userList.length; i++) {
             address user = userList[i];
-            if (energyListings[user].active) {
-                activeListings[index] = energyListings[user];
+            EnergyListing[] storage userListings = energyListings[user];
+            for (uint256 j = 0; j < userListings.length; j++) {
+                allListings[index] = userListings[j];
                 index++;
             }
         }
 
-        return activeListings;
+        return allListings;
+    }
+
+    /**
+     * @dev Returns the total aggregated supply of energy across all producers
+     * @return uint256 The total aggregated supply value
+     */
+    function getAggregatedSupply() public view returns (uint256) {
+        return totalSupplyAggregated;
+    }
+
+    /**
+     * @dev Returns the total aggregated demand of energy across all consumers
+     * @return uint256 The total aggregated demand value
+     */
+
+    function getAggregatedDemand() public view returns (uint256) {
+        return totalDemandAggregated;
+    }
+
+    /**
+     * @dev Returns the list of energy listings for a given producer.
+     * @param producer The address of the producer whose listings are being fetched.
+     * @return An array of EnergyListing structs representing the producer's energy listings.
+     */
+
+    function getListings(
+        address producer
+    ) public view returns (EnergyListing[] memory) {
+        return energyListings[producer];
     }
 
     /**
      * @dev Reset energy data for a user. Only callable by the owner.
      */
     function resetData(address user) external onlyOwner {
-        delete energyRecords[user];
+        delete producedRecords[user];
+        delete consumedRecords[user];
         totalProduced[user] = 0;
         totalConsumed[user] = 0;
 

@@ -1,36 +1,14 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Search, DollarSign } from "lucide-react";
 import EnergyCard from "./EnergyCard";
 
-const mockListings = [
-  { id: "1", type: "Solar", amount: 100, price: 50, seller: "SolarCo" },
-  { id: "2", type: "Wind", amount: 150, price: 60, seller: "WindPower Inc." },
-  {
-    id: "3",
-    type: "Hydro",
-    amount: 200,
-    price: 75,
-    seller: "HydroEnergy Ltd.",
-  },
-  { id: "4", type: "Biomass", amount: 80, price: 45, seller: "BioPower Co." },
-  {
-    id: "5",
-    type: "Geothermal",
-    amount: 120,
-    price: 55,
-    seller: "GeoEnergy Corp.",
-  },
-  { id: "6", type: "Solar", amount: 90, price: 48, seller: "SunPower LLC" },
-  { id: "7", type: "Wind", amount: 180, price: 70, seller: "Breeze Energy" },
-  { id: "8", type: "Hydro", amount: 250, price: 80, seller: "RiverPower Co." },
-];
-
-const EnergyList = () => {
+const EnergyList = ({ data }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [maxBudget, setMaxBudget] = useState("");
-  const [filteredListings, setFilteredListings] = useState(mockListings);
+  const [filteredListings, setFilteredListings] = useState(data);
 
-  const handleSearch = () => {
+  // Re-run the filter whenever the data, searchTerm, or maxBudget changes
+  useEffect(() => {
     const isBudgetValid = maxBudget === "" || !isNaN(parseFloat(maxBudget));
 
     if (!isBudgetValid) {
@@ -38,18 +16,18 @@ const EnergyList = () => {
       return;
     }
 
-    const filtered = mockListings.filter((listing) => {
+    const filtered = data.filter((listing) => {
       const matchesSearch =
         searchTerm === "" ||
-        listing.type.toLowerCase().includes(searchTerm.toLowerCase());
+        listing.EnergyType.toLowerCase().includes(searchTerm.toLowerCase());
       const withinBudget =
-        maxBudget === "" || listing.price <= parseFloat(maxBudget);
+        maxBudget === "" || listing.Price <= parseFloat(maxBudget);
 
       return matchesSearch && withinBudget;
     });
 
     setFilteredListings(filtered);
-  };
+  }, [data, searchTerm, maxBudget]);
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -98,7 +76,7 @@ const EnergyList = () => {
           <p>&nbsp;</p>
           <button
             className="w-full md:w-auto px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition"
-            onClick={handleSearch}
+            onClick={() => setFilteredListings(filteredListings)}
           >
             Search
           </button>
@@ -106,13 +84,13 @@ const EnergyList = () => {
       </div>
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {filteredListings.map((listing) => (
+        {filteredListings.map((listing, index) => (
           <EnergyCard
-            key={listing.id}
-            type={listing.type}
-            amount={listing.amount}
-            price={listing.price}
-            seller={listing.seller}
+            key={index}
+            EnergyType={listing.EnergyType}
+            Amount={listing.Amount}
+            Price={listing.Price}
+            Producer={listing.Producer}
           />
         ))}
       </div>

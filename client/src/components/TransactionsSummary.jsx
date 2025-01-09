@@ -1,4 +1,12 @@
-import { Battery, BatteryCharging, DollarSign, Zap } from "lucide-react";
+import {
+  Battery,
+  BatteryCharging,
+  BatteryFull,
+  BatteryLow,
+  DollarSign,
+  Type,
+  Zap,
+} from "lucide-react";
 import { readOnlyProvider } from "../util/readOnlyProvider";
 import { Contract, ethers } from "ethers";
 import ABI from "../util/EnergyTrading.json";
@@ -7,89 +15,152 @@ import { useAppKitAccount } from "@reown/appkit/react";
 
 const TransactionsSummary = () => {
   const [loading, setLoading] = useState(true);
+  const [userType, setUserType] = useState(null);
   const [total, setTotal] = useState(0);
+  const [totalConsumed, setTotalConsumed] = useState(0);
+  const [allRecords, setAllRecords] = useState([]);
+  const [userEarned, setUserEarned] = useState(0);
   const { address } = useAppKitAccount();
 
   const contract = new Contract(ABI.address, ABI.abi, readOnlyProvider);
- 
+
   useEffect(() => {
     const fetchTotalEnergy = async () => {
       setLoading(true);
       try {
-        // Fetch dynamic price from the contract
         const priceInWei = await contract.dynamicPrice();
-        const conversionFactor = parseFloat(ethers.formatUnits(priceInWei, "ether"));
-  
+        const conversionFactor = parseFloat(
+          ethers.formatUnits(priceInWei, "ether")
+        );
+
+        const formatEnum = (value) => {
+          const type = Number(value);
+          switch (type) {
+            case 0:
+              return "Solar";
+            case 1:
+              return "Wind";
+            case 2:
+              return "Biomass";
+            case 3:
+              return "Tidal";
+            default:
+              return "None";
+          }
+        };
+
+        const formatUser = (value) => {
+          const type = Number(value);
+          switch (type) {
+            case 1:
+              return "Producer";
+            case 2:
+              return "Consumer";
+            default:
+              return "None";
+          }
+        };
+
+        const userType = await contract.getUserType(address);
+        setUserType(formatUser(userType));
+
         // Fetch energy records
-        const totalEnergy = await contract.getRecords(address);
-        // console.log("Raw totalEnergy:", totalEnergy);
-  
-       
-  
-        // Extract and convert values
-        const producedRaw = ethers.toBigInt(totalEnergy[0]);
-        const consumedRaw = ethers.toBigInt(totalEnergy[1]);
-        const timestampRaw = Number(totalEnergy[2]);
-        const energyTypeRaw = Number(totalEnergy[3]);
-  
-        //  Convert energy values to kWh
-        const produced = producedRaw * conversionFactor;
-        const consumed = consumedRaw * conversionFactor;
-  
-        const timestamp = new Date(timestampRaw * 1000).toLocaleString();
-        const energyTypeMapping = ["Solar", "Wind", "Biomass", "Tidal"];
-        const energyType = energyTypeMapping[energyTypeRaw] || "Unknown";
-  
-        // // Update state with formatted values
-        setTotal({ produced, consumed, timestamp, energyType });
-        console.log("Formatted totalEnergy:", { produced, consumed, timestamp, energyType });
+        const energyRecord = await contract.getProducedRecords(address);
+        const energyConsumed = await contract.getConsumedRecords(address);
+        const earned = await contract.userEarned(address);
+        // console.log(earned)
+        setUserEarned(ethers.formatEther(earned));
+
+        const totalProduced = energyRecord.reduce((acc, record) => {
+          const producedValue = parseFloat(record.produced.toString());
+          return acc + producedValue;
+        }, 0);
+
+        const totalConsumed = energyConsumed.reduce((acc, record) => {
+          const consumedValue = parseFloat(record.consumed.toString());
+          return acc + consumedValue;
+        }, 0);
+
+        // console.log(totalProduced);
+        // Format the energy record and store the total produced value
+        const formattedRecord = energyRecord.map((record) => {
+          const producedValue = record.produced.toString();
+          const timestamp = new Date(Number(record.timestamp) * 1000);
+
+          return {
+            Produced: producedValue,
+            Timestamp: timestamp,
+            EnergyType: formatEnum(record.energyType) || record.energyType,
+          };
+        });
+
+        // console.log(formattedRecord)
+        // Update the total produced energy
+        setTotal(totalProduced);
+        setAllRecords(formattedRecord);
+        setTotalConsumed(totalConsumed);
+        setLoading(false);
       } catch (error) {
+        setLoading(false);
         console.error("Error fetching total energy:", error.message);
       } finally {
         setLoading(false);
       }
     };
-  
+
     if (contract && address) {
       fetchTotalEnergy();
     }
   }, [address, contract]);
-  
-  
-  
 
   return (
     <>
-      <div className="bg-white p-6 rounded-lg shadow">
-        <div className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <h3 className="text-sm font-medium">Total Energy Produced</h3>
-          <BatteryCharging className="h-4 w-4 text-gray-500" />
+      {userType === "Producer" && (
+        <div className="bg-green-100 p-6 rounded-lg shadow">
+          <div className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <h3 className="text-sm font-medium">Total Produced</h3>
+            <BatteryFull className="h-6 w-6 text-green-500" />
+          </div>
+          <div className="text-2xl font-bold">{`${total.toFixed(2)} kWh`}</div>
         </div>
-        <div className="text-2xl font-bold"></div>
-        <p className="text-xs text-gray-500">+20.1% from last month</p>
-      </div>
+      )}
+
+      {userType === "Consumer" && (
+        <div className="bg-red-100 p-6 rounded-lg shadow">
+          <div className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <h3 className="text-sm font-medium">Total Consumed</h3>
+            <BatteryLow className="h-6 w-6 text-red-500" />
+          </div>
+          <div className="text-2xl font-bold">{`${totalConsumed.toFixed(
+            2
+          )} kWh`}</div>
+        </div>
+      )}
+
       <div className="bg-white p-6 rounded-lg shadow">
         <div className="flex flex-row items-center justify-between space-y-0 pb-2">
           <h3 className="text-sm font-medium">Total Energy Sold</h3>
           <Battery className="h-4 w-4 text-gray-500" />
         </div>
-        <div className="text-2xl font-bold">567 kWh</div>
+        <div className="text-sm font-bold">Launching soon!!!</div>
         <p className="text-xs text-gray-500">+10.5% from last month</p>
       </div>
+
       <div className="bg-white p-6 rounded-lg shadow">
         <div className="flex flex-row items-center justify-between space-y-0 pb-2">
           <h3 className="text-sm font-medium">Net Earnings</h3>
           <DollarSign className="h-4 w-4 text-gray-500" />
         </div>
-        <div className="text-2xl font-bold">$789.00</div>
-        <p className="text-xs text-gray-500">+15.2% from last month</p>
+        <div className="text-2xl font-bold">{userEarned} ETC</div>
+        {/* <p className="text-xs text-gray-500">+15.2% from last month</p> */}
       </div>
+
       <div className="bg-white p-6 rounded-lg shadow">
         <div className="flex flex-row items-center justify-between space-y-0 pb-2">
           <h3 className="text-sm font-medium">Active Disputes</h3>
           <Zap className="h-4 w-4 text-gray-500" />
         </div>
-        <div className="text-2xl font-bold">3</div>
+        <div className="text-sm font-bold">Launching soon!!!</div>
         <p className="text-xs text-gray-500">-2 from last month</p>
       </div>
     </>
