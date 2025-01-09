@@ -7,8 +7,8 @@ import {
 } from "react";
 import useContract from "../hook/useContract";
 import { Contract } from "ethers";
-import { readOnlyProvider } from "../util/readOnlyProvider";
 import ABI from "../util/EnergyTrading.json";
+import { readOnlyProvider } from "../util/readOnlyProvider";
 
 const EnergyContext = createContext({
   energies: [],
