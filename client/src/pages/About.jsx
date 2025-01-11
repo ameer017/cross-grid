@@ -138,7 +138,9 @@ const About = () => {
                   <h3 className="text-xl font-semibold text-gray-800 mt-4">
                     Anate Ibrahim
                   </h3>
-                  <p className="text-gray-500">Co-Founder, Head of Operations</p>
+                  <p className="text-gray-500">
+                    Co-Founder, Head of Operations
+                  </p>
                 </motion.div>
               </div>
             </div>
@@ -158,7 +160,7 @@ const About = () => {
                 energy trading and sustainability.
               </p>
               <Link
-                to="mission"
+                to="/get-started"
                 smooth={true}
                 duration={800}
                 className="mt-6 inline-block px-6 py-3 bg-teal-500 text-white rounded-lg hover:bg-teal-400 transition cursor-pointer"
