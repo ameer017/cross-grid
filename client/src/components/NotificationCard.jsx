@@ -1,6 +1,6 @@
 import { Bell, AlertTriangle, DollarSign, Zap } from 'lucide-react'
 
-const NotificationCard = ({ notification }) => {
+const NotificationCard = ({ notifications }) => {
   const getIcon = (type) => {
     switch (type) {
       case 'transaction':
@@ -16,11 +16,9 @@ const NotificationCard = ({ notification }) => {
 
   return (
     <div
-      className={`p-4 border rounded-lg ${
-        notification.read ? 'bg-white' : 'bg-blue-50'
-      }`}
+     
     >
-      <div className="flex items-start">
+      {/* <div className="flex items-start">
         <div className="flex-shrink-0 mr-3">{getIcon(notification.type)}</div>
         <div className="flex-grow">
           <h2 className="text-lg font-semibold">{notification.title}</h2>
@@ -34,7 +32,7 @@ const NotificationCard = ({ notification }) => {
             <span className="inline-block w-2 h-2 bg-blue-500 rounded-full"></span>
           </div>
         )}
-      </div>
+      </div> */}
     </div>
   )
 }

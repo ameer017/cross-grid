@@ -12,6 +12,7 @@ import ABI from "../util/EnergyTrading.json";
 import { useEffect, useState } from "react";
 import { useAppKitAccount } from "@reown/appkit/react";
 import { readOnlyProvider } from "../constant/readProvider";
+import { GiAxeSword } from "react-icons/gi";
 
 const TransactionsSummary = () => {
   const [loading, setLoading] = useState(true);
@@ -21,6 +22,7 @@ const TransactionsSummary = () => {
   const [allRecords, setAllRecords] = useState([]);
   const [userEarned, setUserEarned] = useState(0);
   const { address } = useAppKitAccount();
+  const[dispute, setDispute] = useState(null)
 
   const contract = new Contract(ABI.address, ABI.abi, readOnlyProvider);
 
@@ -94,6 +96,10 @@ const TransactionsSummary = () => {
           };
         });
 
+        const fetchDispute = await contract.getDisputes()
+        // console.log(fetchDispute.length)
+        setDispute(fetchDispute.length)
+
         // console.log(formattedRecord)
         // Update the total produced energy
         setTotal(totalProduced);
@@ -122,6 +128,9 @@ const TransactionsSummary = () => {
             <BatteryFull className="h-6 w-6 text-green-500" />
           </div>
           <div className="text-2xl font-bold">{`${total.toFixed(2)} kWh`}</div>
+          <p className="text-xs text-gray-500">
+            +{`${total.toFixed().length}`}% from last month
+          </p>
         </div>
       )}
 
@@ -158,10 +167,12 @@ const TransactionsSummary = () => {
       <div className="bg-white p-6 rounded-lg shadow">
         <div className="flex flex-row items-center justify-between space-y-0 pb-2">
           <h3 className="text-sm font-medium">Active Disputes</h3>
-          <Zap className="h-4 w-4 text-gray-500" />
+          <GiAxeSword className="text-[20px] text-amber-500" />
         </div>
-        <div className="text-sm font-bold">Launching soon!!!</div>
-        <p className="text-xs text-gray-500">-2 from last month</p>
+        <div className="text-2xl font-bold">
+        {dispute}
+        </div>
+        <p className="text-xs text-gray-500">{dispute}% from last month</p>
       </div>
     </>
   );
