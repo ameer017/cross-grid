@@ -1,80 +1,36 @@
 import { useState, useEffect } from "react";
 import NotificationCard from "./NotificationCard";
 import ABI from "../util/EnergyTrading.json";
-import { ethers, JsonRpcProvider } from "ethers";
+import { Contract } from "ethers";
+import { useAppKitAccount } from "@reown/appkit/react";
+import { toast } from "react-toastify";
+import { readOnlyProvider } from "../constant/readProvider";
 
 const Notifications = () => {
   const [filter, setFilter] = useState("all");
   const [notifications, setNotifications] = useState([]);
+  const { address } = useAppKitAccount();
 
-  const provider = new JsonRpcProvider(
-    `https://crossfi-testnet.g.alchemy.com/v2/${
-      import.meta.env.VITE_APP_NODE_URL
-    }`
-  );
-  const contract = new ethers.Contract(ABI.address, ABI.abi, provider);
+  const contract = new Contract(ABI.address, ABI.abi, readOnlyProvider);
 
   useEffect(() => {
     const fetchEvents = async () => {
       try {
-        const latestBlock = await provider.getBlockNumber();
-        const blockStep = 10000;
-        let fromBlock = 0;
-        let toBlock = fromBlock + blockStep;
+        const allNotifications = await contract.getNotifications(address);
 
-        let allEvents = [];
-
-        while (fromBlock <= latestBlock) {
-          toBlock = Math.min(toBlock, latestBlock);
-
-          const logs = await provider.getLogs({
-            address: ABI.address,
-            fromBlock,
-            toBlock,
-          });
-
-          const parsedEvents = logs.map((log, index) => ({
-            id: `${log.transactionHash}-${index}`,
-            type: log.topics[0] || "system",
-            title: log.topics[0] || "Event",
-            message: JSON.stringify(log.data),
-            date: new Date().toISOString(),
-            read: false,
-          }));
-
-          allEvents = [...allEvents, ...parsedEvents];
-
-          fromBlock = toBlock + 1;
-          toBlock = fromBlock + blockStep;
-
-          if (fromBlock > latestBlock) break;
-        }
-
-        setNotifications(allEvents);
-
-        provider.on("logs", (log) => {
-          const event = contract.interface.parseLog(log);
-          const newNotification = {
-            id: `${log.transactionHash}-${log.logIndex}`,
-            type: event.name || "system",
-            title: event.name || "Event",
-            message: JSON.stringify(event.args),
-            date: new Date().toISOString(),
-            read: false,
-          };
-          setNotifications((prev) => [newNotification, ...prev]);
-        });
+        const formattedNotifications = allNotifications.map((notif) => ({
+          title: notif.message,
+          timestamp: Number(notif.timestamp),
+        }));
+        setNotifications(formattedNotifications);
       } catch (error) {
-        console.error("Error fetching events:", error);
+        toast.error("Error fetching notifications");
+        console.error("Error details:", error);
       }
     };
 
     fetchEvents();
-
-    return () => {
-      provider.removeAllListeners("logs");
-    };
-  }, [ABI.address, ABI.abi, provider]);
+  }, [address, contract]);
 
   const filteredNotifications = notifications.filter(
     (notification) => filter === "all" || notification.type === filter

@@ -59,36 +59,33 @@ const Dashboard = () => {
 
   return (
     <>
-
-    <div className="px-20 pt-40">
-      <div>
-        {loading ? (
-          <div className="flex items-center justify-center h-[85vh] ">
-
-          <Triangle
-            visible={true}
-            height="80"
-            width="80"
-            color="#00FFFF"
-            ariaLabel="triangle-loading"
-            wrapperStyle={{}}
-            wrapperClass=""
-          />
-          </div>
-        ) : userProfile ? (
-          <>
-
-          <div className="mb-8">
-            <h1 className="text-2xl font-bold">User Profile</h1>
-            <p className="text-gray-600 text-2xl">{userProfile.userType}</p>
-          </div>
-      <EnergyDashboard />
-          </>
-        ) : (
-          <p>User not found</p>
-        )}
+      <div className="px-20 pt-40">
+        <div>
+          {loading ? (
+            <div className="flex items-center justify-center h-[85vh] ">
+              <Triangle
+                visible={true}
+                height="80"
+                width="80"
+                color="#00FFFF"
+                ariaLabel="triangle-loading"
+                wrapperStyle={{}}
+                wrapperClass=""
+              />
+            </div>
+          ) : userProfile ? (
+            <>
+              <div className="mb-8">
+                <h1 className="text-2xl font-bold">User Profile</h1>
+                <p className="text-gray-600 text-2xl">{userProfile.userType}</p>
+              </div>
+              <EnergyDashboard />
+            </>
+          ) : (
+            <p>User not found</p>
+          )}
+        </div>
       </div>
-    </div>
     </>
   );
 };
