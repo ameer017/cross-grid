@@ -4,6 +4,8 @@ import EnergyDashboard from "../components/EnergyDashboard";
 import { useAppKitAccount } from "@reown/appkit/react";
 import ABI from "../util/EnergyTrading.json";
 import { readOnlyProvider } from "../constant/readProvider";
+import { toast } from "react-toastify";
+import { Triangle } from "react-loader-spinner";
 
 const Dashboard = () => {
   const { address } = useAppKitAccount();
@@ -44,7 +46,7 @@ const Dashboard = () => {
           console.log("User not found in the contract");
         }
       } catch (error) {
-        console.error("Error fetching user profile:", error);
+        toast.error("Error fetching user profile:", error);
       } finally {
         setLoading(false);
       }
@@ -56,24 +58,38 @@ const Dashboard = () => {
   }, [address, contract]);
 
   return (
+    <>
+
     <div className="px-20 pt-40">
       <div>
         {loading ? (
-          <p>Loading profile...</p>
+          <div className="flex items-center justify-center h-[85vh] ">
+
+          <Triangle
+            visible={true}
+            height="80"
+            width="80"
+            color="#00FFFF"
+            ariaLabel="triangle-loading"
+            wrapperStyle={{}}
+            wrapperClass=""
+          />
+          </div>
         ) : userProfile ? (
+          <>
+
           <div className="mb-8">
             <h1 className="text-2xl font-bold">User Profile</h1>
-            <p className="text-gray-600">User Type: {userProfile.userType}</p>
-            <p className="text-gray-600">
-              Registered: {userProfile.registered}
-            </p>
+            <p className="text-gray-600 text-2xl">{userProfile.userType}</p>
           </div>
+      <EnergyDashboard />
+          </>
         ) : (
           <p>User not found</p>
         )}
       </div>
-      <EnergyDashboard />
     </div>
+    </>
   );
 };
 

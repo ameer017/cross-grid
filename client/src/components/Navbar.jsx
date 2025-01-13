@@ -2,6 +2,9 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { FaBars, FaTimes } from "react-icons/fa";
 import { IoMdNotifications } from "react-icons/io";
+import { RiShoppingCartLine } from "react-icons/ri";
+import { CgProfile } from "react-icons/cg";
+import { MdCreateNewFolder } from "react-icons/md";
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
@@ -16,42 +19,42 @@ const Navbar = () => {
       </Link>
 
       <nav className="hidden md:flex items-center space-x-8">
-        <Link
+        {/* <Link
           to="/about"
           className="hover:text-yellow-400 transition duration-300"
         >
           About
-        </Link>
+        </Link> */}
         <Link
           to="/dashboard"
-          className="hover:text-yellow-400 transition duration-300"
+          className="hover:text-cyan-400 transition duration-300 hover:-translate-y-2"
         >
-          Dashboard
+          <CgProfile  size={25}/>
         </Link>
-        <Link
+        {/* <Link
           to="/dispute-overview"
           className="hover:text-yellow-400 transition duration-300"
         >
           Dispute
-        </Link>
+        </Link> */}
         <Link
           to="/list-energy"
-          className="hover:text-yellow-400 transition duration-300"
+          className="hover:text-cyan-400 transition duration-300 hover:-translate-y-2"
         >
-          List Energy
+          <MdCreateNewFolder size={25} />
         </Link>
         <Link
           to="/energy-marketplace"
-          className="hover:text-yellow-400 transition duration-300"
+          className="hover:text-cyan-400 transition duration-300 hover:-translate-y-2"
         >
-          Marketplace
+          <RiShoppingCartLine size={25} />
         </Link>
 
         <Link
           to="/notifications"
-          className="hover:text-yellow-400 transition duration-300"
+          className="hover:text-cyan-400 transition duration-300 hover:-translate-y-2"
         >
-          <IoMdNotifications />
+          <IoMdNotifications size={25} />
         </Link>
 
         <appkit-button size="md" />
@@ -83,13 +86,13 @@ const Navbar = () => {
         >
           Dashboard
         </Link>
-        <Link
+        {/* <Link
           to="/dispute-overview"
           className="text-xl py-2 hover:text-yellow-400 transition duration-300"
           onClick={toggleMenu}
         >
           Dispute
-        </Link>
+        </Link> */}
         <Link
           to="/list-energy"
           className="text-xl py-2 hover:text-yellow-400 transition duration-300"

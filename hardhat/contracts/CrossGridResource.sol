@@ -35,6 +35,13 @@ contract CrossGridResource {
         bool active;
     }
 
+    struct Notification {
+        string message;
+        uint256 timestamp;
+    }
+
+    mapping(address => Notification[]) public notifications;
+
     enum UserType {
         None,
         Producer,
@@ -105,8 +112,14 @@ contract CrossGridResource {
         EnergyType energyType,
         uint256 timestamp
     );
+    event NotificationAdded(
+        address indexed user,
+        string message,
+        uint256 timestamp
+    );
     event PriceUpdated(uint256 oldPrice, uint256 newPrice);
     event UserRegistered(address indexed user, UserType userType);
+    event NotificationEmitted(address indexed user, string message);
 
     modifier noReentrancyGuard() {
         require(!locked, "Reentrancy is not allowed");
@@ -149,6 +162,51 @@ contract CrossGridResource {
         token = IEnergy(_token);
 
         owner = msg.sender;
+    }
+
+    /**
+     * @notice Adds a notification for a specific user.
+     * @dev Stores the message and the current timestamp as a notification for the given user address.
+     * @param user The address of the user to whom the notification is being added.
+     * @param message The message content of the notification.
+     * Emits a {NotificationAdded} event.
+     */
+
+    function addNotification(address user, string memory message) internal {
+        notifications[user].push(
+            Notification({message: message, timestamp: block.timestamp})
+        );
+        emit NotificationAdded(user, message, block.timestamp);
+    }
+
+    /**
+     * @notice Retrieves all notifications for a specific user.
+     * @param user The address of the user whose notifications are to be fetched.
+     * @return An array of `Notification` structs containing message and timestamp.
+     */
+    function getNotifications(
+        address user
+    ) external view returns (Notification[] memory) {
+        return notifications[user];
+    }
+
+    /**
+     * @notice Clears all notifications for the caller.
+     * @dev Deletes all notifications stored for the message sender.
+     */
+    function clearNotifications() external {
+        delete notifications[msg.sender];
+    }
+
+    /**
+     * @notice Emits a notification event and stores it for the caller.
+     * @dev Internally calls `addNotification` and emits a {NotificationEmitted} event.
+     * @param message The message content of the notification.
+     * Emits a {NotificationEmitted} event.
+     */
+    function notifyEventEmission(string memory message) internal {
+        addNotification(msg.sender, message);
+        emit NotificationEmitted(msg.sender, message);
     }
 
     /**
@@ -246,6 +304,7 @@ contract CrossGridResource {
             dynamicPrice,
             energyTypeToString(energyType)
         );
+        notifyEventEmission("Energy listed successfully.");
     }
 
     /**
@@ -301,6 +360,7 @@ contract CrossGridResource {
         recordConsumption(msg.sender, amountToBuy, listing.energyType);
 
         emit EnergyBought(producer, msg.sender, amountToBuy, listing.price);
+        notifyEventEmission("Energy purchased successfully.");
     }
 
     /**
@@ -491,6 +551,7 @@ contract CrossGridResource {
             })
         );
         emit DisputeInitiated(msg.sender, respondent, reason);
+        notifyEventEmission("Dispute initiated successfully.");
     }
 
     /**
