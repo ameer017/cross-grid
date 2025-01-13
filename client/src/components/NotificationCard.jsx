@@ -1,42 +1,56 @@
-import { Bell, AlertTriangle, DollarSign, Zap } from 'lucide-react'
+import { Bell, AlertTriangle, DollarSign, Zap } from "lucide-react";
+import { ethers } from "ethers";
 
 const NotificationCard = ({ notification }) => {
-  const getIcon = (type) => {
-    switch (type) {
-      case 'transaction':
-        return <DollarSign className="h-5 w-5 text-green-500" />
-      case 'dispute':
-        return <AlertTriangle className="h-5 w-5 text-yellow-500" />
-      case 'system':
-        return <Zap className="h-5 w-5 text-blue-500" />
-      default:
-        return <Bell className="h-5 w-5 text-gray-500" />
+  const iconMap = {
+    transaction: <DollarSign className="h-5 w-5 text-green-500" />,
+    dispute: <AlertTriangle className="h-5 w-5 text-yellow-500" />,
+    system: <Zap className="h-5 w-5 text-blue-500" />,
+    default: <Bell className="h-5 w-5 text-gray-500" />,
+  };
+
+  const getIcon = (type) => iconMap[type] || iconMap.default;
+
+  const parseHexToString = (hex) => {
+    try {
+      return ethers ? ethers.utils.toUtf8String(hex) : hex;
+    } catch (error) {
+      console.warn("Error decoding hex:", error);
+      return hex;
     }
-  }
+  };
+
+  const { title, message, type, date, read } = notification;
+  const parsedNotification = {
+    title: parseHexToString(title),
+    message: parseHexToString(message),
+    type,
+    date,
+    read,
+  };
+
+  console.log(parsedNotification)
+  console.log(notification)
 
   return (
-    <div
-      className={`p-4 border rounded-lg ${
-        notification.read ? 'bg-white' : 'bg-blue-50'
-      }`}
-    >
-      <div className="flex items-start">
-        <div className="flex-shrink-0 mr-3">{getIcon(notification.type)}</div>
-        <div className="flex-grow">
-          <h2 className="text-lg font-semibold">{notification.title}</h2>
-          <p className="text-gray-600">{notification.message}</p>
-          <p className="text-sm text-gray-500 mt-1">
-            {new Date(notification.date).toLocaleString()}
-          </p>
-        </div>
-        {!notification.read && (
-          <div className="flex-shrink-0 ml-3">
-            <span className="inline-block w-2 h-2 bg-blue-500 rounded-full"></span>
-          </div>
-        )}
+    <div className="flex items-start bg-white p-4 rounded-lg shadow-md">
+      <div className="flex-shrink-0 mr-3">
+        {getIcon(parsedNotification.type)}
       </div>
+      <div className="flex-grow">
+        <h2 className="text-lg font-semibold">{parsedNotification.title}</h2>
+        <p className="text-gray-600">{parsedNotification.message}</p>
+        <p className="text-sm text-gray-500 mt-1">
+          {new Date(parsedNotification.date).toLocaleString()}
+        </p>
+      </div>
+      {!parsedNotification.read && (
+        <div className="flex-shrink-0 ml-3">
+          <span className="inline-block w-2 h-2 bg-blue-500 rounded-full"></span>
+        </div>
+      )}
     </div>
-  )
-}
+  );
+};
 
-export default NotificationCard
+export default NotificationCard;
