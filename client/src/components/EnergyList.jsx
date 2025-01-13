@@ -85,13 +85,16 @@ const EnergyList = ({ data }) => {
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {filteredListings.map((listing, index) => (
+          
           <EnergyCard
             key={index}
+            listIndex={index}
             EnergyType={listing.EnergyType}
             Amount={listing.Amount}
             Price={listing.Price}
             Producer={listing.Producer}
           />
+          
         ))}
       </div>
     </div>
