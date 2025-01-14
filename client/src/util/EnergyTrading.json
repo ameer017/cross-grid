@@ -1,5 +1,5 @@
 {
-  "address": "0xB3A3B5aB4Df8800ca9Fb49665a98CC7e5147f206",
+  "address": "0x37b09aF58967a18CAec36CeA1defF396E3ec48d1",
   "abi": [
     {
       "inputs": [
@@ -184,7 +184,7 @@
         },
         {
           "indexed": false,
-          "internalType": "enum CrossGridResource.EnergyType",
+          "internalType": "enum CrossGridRes.EnergyType",
           "name": "energyType",
           "type": "uint8"
         },
@@ -196,6 +196,50 @@
         }
       ],
       "name": "EnergyProduced",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "user",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "string",
+          "name": "message",
+          "type": "string"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "timestamp",
+          "type": "uint256"
+        }
+      ],
+      "name": "NotificationAdded",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "user",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "string",
+          "name": "message",
+          "type": "string"
+        }
+      ],
+      "name": "NotificationEmitted",
       "type": "event"
     },
     {
@@ -228,7 +272,7 @@
         },
         {
           "indexed": false,
-          "internalType": "enum CrossGridResource.UserType",
+          "internalType": "enum CrossGridRes.UserType",
           "name": "userType",
           "type": "uint8"
         }
@@ -260,6 +304,13 @@
       "type": "function"
     },
     {
+      "inputs": [],
+      "name": "clearNotifications",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
       "inputs": [
         {
           "internalType": "address",
@@ -285,7 +336,7 @@
           "type": "uint256"
         },
         {
-          "internalType": "enum CrossGridResource.EnergyType",
+          "internalType": "enum CrossGridRes.EnergyType",
           "name": "energyType",
           "type": "uint8"
         }
@@ -400,7 +451,7 @@
           "type": "uint256"
         },
         {
-          "internalType": "enum CrossGridResource.EnergyType",
+          "internalType": "enum CrossGridRes.EnergyType",
           "name": "energyType",
           "type": "uint8"
         },
@@ -435,7 +486,7 @@
               "type": "uint256"
             },
             {
-              "internalType": "enum CrossGridResource.EnergyType",
+              "internalType": "enum CrossGridRes.EnergyType",
               "name": "energyType",
               "type": "uint8"
             },
@@ -445,7 +496,7 @@
               "type": "bool"
             }
           ],
-          "internalType": "struct CrossGridResource.EnergyListing[]",
+          "internalType": "struct CrossGridRes.EnergyListing[]",
           "name": "",
           "type": "tuple[]"
         }
@@ -515,12 +566,12 @@
               "type": "uint256"
             },
             {
-              "internalType": "enum CrossGridResource.EnergyType",
+              "internalType": "enum CrossGridRes.EnergyType",
               "name": "energyType",
               "type": "uint8"
             }
           ],
-          "internalType": "struct CrossGridResource.EnergyConsumedRecord[]",
+          "internalType": "struct CrossGridRes.EnergyConsumedRecord[]",
           "name": "",
           "type": "tuple[]"
         }
@@ -571,7 +622,7 @@
               "type": "uint256"
             }
           ],
-          "internalType": "struct CrossGridResource.Dispute",
+          "internalType": "struct CrossGridRes.Dispute",
           "name": "",
           "type": "tuple"
         }
@@ -616,7 +667,7 @@
               "type": "uint256"
             }
           ],
-          "internalType": "struct CrossGridResource.Dispute[]",
+          "internalType": "struct CrossGridRes.Dispute[]",
           "name": "",
           "type": "tuple[]"
         }
@@ -652,7 +703,7 @@
               "type": "uint256"
             },
             {
-              "internalType": "enum CrossGridResource.EnergyType",
+              "internalType": "enum CrossGridRes.EnergyType",
               "name": "energyType",
               "type": "uint8"
             },
@@ -662,7 +713,38 @@
               "type": "bool"
             }
           ],
-          "internalType": "struct CrossGridResource.EnergyListing[]",
+          "internalType": "struct CrossGridRes.EnergyListing[]",
+          "name": "",
+          "type": "tuple[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "user",
+          "type": "address"
+        }
+      ],
+      "name": "getNotifications",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "string",
+              "name": "message",
+              "type": "string"
+            },
+            {
+              "internalType": "uint256",
+              "name": "timestamp",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct CrossGridRes.Notification[]",
           "name": "",
           "type": "tuple[]"
         }
@@ -693,12 +775,12 @@
               "type": "uint256"
             },
             {
-              "internalType": "enum CrossGridResource.EnergyType",
+              "internalType": "enum CrossGridRes.EnergyType",
               "name": "energyType",
               "type": "uint8"
             }
           ],
-          "internalType": "struct CrossGridResource.EnergyProducedRecord[]",
+          "internalType": "struct CrossGridRes.EnergyProducedRecord[]",
           "name": "",
           "type": "tuple[]"
         }
@@ -717,7 +799,7 @@
       "name": "getUserType",
       "outputs": [
         {
-          "internalType": "enum CrossGridResource.UserType",
+          "internalType": "enum CrossGridRes.UserType",
           "name": "",
           "type": "uint8"
         }
@@ -775,7 +857,7 @@
           "type": "uint256"
         },
         {
-          "internalType": "enum CrossGridResource.EnergyType",
+          "internalType": "enum CrossGridRes.EnergyType",
           "name": "energyType",
           "type": "uint8"
         }
@@ -783,6 +865,35 @@
       "name": "listEnergy",
       "outputs": [],
       "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "notifications",
+      "outputs": [
+        {
+          "internalType": "string",
+          "name": "message",
+          "type": "string"
+        },
+        {
+          "internalType": "uint256",
+          "name": "timestamp",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
       "type": "function"
     },
     {
@@ -824,7 +935,7 @@
           "type": "uint256"
         },
         {
-          "internalType": "enum CrossGridResource.EnergyType",
+          "internalType": "enum CrossGridRes.EnergyType",
           "name": "energyType",
           "type": "uint8"
         }
@@ -840,7 +951,7 @@
           "type": "address"
         },
         {
-          "internalType": "enum CrossGridResource.UserType",
+          "internalType": "enum CrossGridRes.UserType",
           "name": "userType",
           "type": "uint8"
         }
@@ -1014,7 +1125,7 @@
       "name": "users",
       "outputs": [
         {
-          "internalType": "enum CrossGridResource.UserType",
+          "internalType": "enum CrossGridRes.UserType",
           "name": "userType",
           "type": "uint8"
         },

@@ -22,7 +22,7 @@ const TransactionsSummary = () => {
   const [allRecords, setAllRecords] = useState([]);
   const [userEarned, setUserEarned] = useState(0);
   const { address } = useAppKitAccount();
-  const[dispute, setDispute] = useState(null)
+  const [dispute, setDispute] = useState(null);
 
   const contract = new Contract(ABI.address, ABI.abi, readOnlyProvider);
 
@@ -96,9 +96,9 @@ const TransactionsSummary = () => {
           };
         });
 
-        const fetchDispute = await contract.getDisputes()
+        const fetchDispute = await contract.getDisputes();
         // console.log(fetchDispute.length)
-        setDispute(fetchDispute.length)
+        setDispute(fetchDispute.length);
 
         // console.log(formattedRecord)
         // Update the total produced energy
@@ -146,32 +146,34 @@ const TransactionsSummary = () => {
         </div>
       )}
 
-      <div className="bg-white p-6 rounded-lg shadow">
-        <div className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <h3 className="text-sm font-medium">Total Energy Sold</h3>
-          <Battery className="h-4 w-4 text-gray-500" />
+      {userType === "Producer" && (
+        <div className="bg-white p-6 rounded-lg shadow">
+          <div className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <h3 className="text-sm font-medium">Total Energy Sold</h3>
+            <Battery className="h-4 w-4 text-gray-500" />
+          </div>
+          <div className="text-sm font-bold">Launching soon!!!</div>
+          <p className="text-xs text-gray-500">+10.5% from last month</p>
         </div>
-        <div className="text-sm font-bold">Launching soon!!!</div>
-        <p className="text-xs text-gray-500">+10.5% from last month</p>
-      </div>
+      )}
 
-      <div className="bg-white p-6 rounded-lg shadow">
-        <div className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <h3 className="text-sm font-medium">Net Earnings</h3>
-          <DollarSign className="h-4 w-4 text-gray-500" />
+      {userType === "Producer" && (
+        <div className="bg-white p-6 rounded-lg shadow">
+          <div className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <h3 className="text-sm font-medium">Net Earnings</h3>
+            <DollarSign className="h-4 w-4 text-gray-500" />
+          </div>
+          <div className="text-2xl font-bold">{userEarned} ETC</div>
+          {/* <p className="text-xs text-gray-500">+15.2% from last month</p> */}
         </div>
-        <div className="text-2xl font-bold">{userEarned} ETC</div>
-        {/* <p className="text-xs text-gray-500">+15.2% from last month</p> */}
-      </div>
+      )}
 
       <div className="bg-white p-6 rounded-lg shadow">
         <div className="flex flex-row items-center justify-between space-y-0 pb-2">
           <h3 className="text-sm font-medium">Active Disputes</h3>
           <GiAxeSword className="text-[20px] text-amber-500" />
         </div>
-        <div className="text-2xl font-bold">
-        {dispute}
-        </div>
+        <div className="text-2xl font-bold">{dispute}</div>
         <p className="text-xs text-gray-500">{dispute}% from last month</p>
       </div>
     </>

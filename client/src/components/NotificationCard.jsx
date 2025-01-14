@@ -15,22 +15,22 @@ const NotificationCard = ({ notification }) => {
     try {
       return ethers ? ethers.utils.toUtf8String(hex) : hex;
     } catch (error) {
-      console.warn("Error decoding hex:", error);
+      // console.warn("Error decoding hex:", error);
       return hex;
     }
   };
 
-  const { title, message, type, date, read } = notification;
+  const { title, message, type, timestamp, read } = notification;
   const parsedNotification = {
     title: parseHexToString(title),
     message: parseHexToString(message),
     type,
-    date,
+    timestamp,
     read,
   };
 
-  console.log(parsedNotification)
-  console.log(notification)
+  // console.log(parsedNotification)
+  // console.log(notification)
 
   return (
     <div className="flex items-start bg-white p-4 rounded-lg shadow-md">
@@ -41,7 +41,7 @@ const NotificationCard = ({ notification }) => {
         <h2 className="text-lg font-semibold">{parsedNotification.title}</h2>
         <p className="text-gray-600">{parsedNotification.message}</p>
         <p className="text-sm text-gray-500 mt-1">
-          {new Date(parsedNotification.date).toLocaleString()}
+          {new Date(parsedNotification.timestamp).toLocaleString()}
         </p>
       </div>
       {!parsedNotification.read && (

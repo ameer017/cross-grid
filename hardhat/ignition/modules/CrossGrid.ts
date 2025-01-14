@@ -5,10 +5,10 @@ import { buildModule } from "@nomicfoundation/hardhat-ignition/modules";
 import hre from "hardhat";
 import Token_Add from "../deployments/chain-4157/deployed_addresses.json"
 
-const GridModule = buildModule("GridModule", (m) => {
+const ResModule = buildModule("ResModule", (m) => {
   const _initialPrice = hre.ethers.parseEther("0.5");
 
-  const energy = m.contract("CrossGridResource", [
+  const energy = m.contract("CrossGridRes", [
     _initialPrice,
     Token_Add["EnergyTokenModule#EnergyCredits"]
   ]);
@@ -16,4 +16,4 @@ const GridModule = buildModule("GridModule", (m) => {
   return { energy };
 });
 
-export default GridModule;
+export default ResModule;

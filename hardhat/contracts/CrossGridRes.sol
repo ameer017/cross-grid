@@ -7,7 +7,7 @@ import {IEnergy} from "./IEnergy.sol";
  * @title CrossGridResource
  * @dev A decentralized platform for managing energy production, consumption, and trading using blockchain technology.
  */
-contract CrossGridResource {
+contract CrossGridRes {
     uint256 public dynamicPrice;
     IEnergy public token;
 
@@ -326,7 +326,7 @@ contract CrossGridResource {
         );
 
         // Calculate the equivalent energy amount based on the price
-        uint256 amountToBuy = (price * 1000) / listing.price; // in kWh
+        uint256 amountToBuy = price / listing.price;
         require(
             amountToBuy <= listing.amount,
             "Producer does not have enough energy"
