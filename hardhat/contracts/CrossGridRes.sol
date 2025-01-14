@@ -4,7 +4,7 @@ pragma solidity ^0.8.26;
 import {IEnergy} from "./IEnergy.sol";
 
 /**
- * @title CrossGridResource
+ * @title CrossGridRes
  * @dev A decentralized platform for managing energy production, consumption, and trading using blockchain technology.
  */
 contract CrossGridRes {
@@ -49,6 +49,7 @@ contract CrossGridRes {
     }
 
     struct User {
+        string name;
         UserType userType; // User type: Producer or Consumer.
         bool registered;
     }
@@ -210,18 +211,26 @@ contract CrossGridRes {
     }
 
     /**
-     * @notice Allows a user to register as a producer or consumer.
+     * @notice Allows the caller to register as a producer or consumer.
+     * @dev This function uses `msg.sender` to register the user and ensures the address is valid, the user type is valid, and the user is not already registered.
+     * @param name The name of the user to register.
      * @param userType The type of user (Producer or Consumer).
      */
-    function registerUser(address user, UserType userType) external {
-        require(user != address(0), "Invalid user address");
+
+    function registerUser(string memory name, UserType userType) external {
+        require(msg.sender != address(0), "Invalid user address");
         require(userType != UserType.None, "Invalid user type");
-        require(!users[user].registered, "User is already registered");
+        require(!users[msg.sender].registered, "User is already registered");
 
-        users[user] = User({userType: userType, registered: true});
-        userList.push(user);
+        users[msg.sender] = User({
+            name: name,
+            userType: userType,
+            registered: true
+        });
+        userList.push(msg.sender);
 
-        emit UserRegistered(user, userType);
+        emit UserRegistered(msg.sender, userType);
+        notifyEventEmission("Registration successful.");
     }
 
     /**
@@ -253,18 +262,22 @@ contract CrossGridRes {
     }
 
     /**
-     * @dev Update the dynamic price based on supply and demand.
-     * Fetch total production and consumption from EnergyMonitoring.
+     * @dev Update the dynamic price based on current supply and demand.
      */
-    function updatePrice() public onlyOwner {
-        uint256 totalSupply = totalProduced[owner];
-        uint256 totalDemand = totalConsumed[owner];
-
-        require(totalSupply > 0, "Supply must be greater than zero");
-        require(totalDemand > 0, "Demand must be greater than zero");
+    function updateDynamicPrice() internal {
+        require(
+            totalSupplyAggregated > 0,
+            "Total supply must be greater than zero"
+        );
+        require(
+            totalDemandAggregated > 0,
+            "Total demand must be greater than zero"
+        );
 
         uint256 oldPrice = dynamicPrice;
-        dynamicPrice = (totalDemand * oldPrice) / totalSupply;
+        dynamicPrice =
+            (totalDemandAggregated * oldPrice) /
+            totalSupplyAggregated;
 
         emit PriceUpdated(oldPrice, dynamicPrice);
     }
@@ -297,6 +310,7 @@ contract CrossGridRes {
 
         // Record production.
         recordProduction(msg.sender, amount, energyType);
+        updateDynamicPrice();
 
         emit EnergyListed(
             msg.sender,
@@ -358,6 +372,7 @@ contract CrossGridRes {
 
         // Record the consumer's energy purchase
         recordConsumption(msg.sender, amountToBuy, listing.energyType);
+        updateDynamicPrice();
 
         emit EnergyBought(producer, msg.sender, amountToBuy, listing.price);
         notifyEventEmission("Energy purchased successfully.");

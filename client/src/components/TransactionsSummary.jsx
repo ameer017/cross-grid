@@ -167,6 +167,16 @@ const TransactionsSummary = () => {
           {/* <p className="text-xs text-gray-500">+15.2% from last month</p> */}
         </div>
       )}
+      {userType === "Consumer" && (
+        <div className="bg-white p-6 rounded-lg shadow">
+          <div className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <h3 className="text-sm font-medium">Net Spending</h3>
+            <DollarSign className="h-4 w-4 text-gray-500" />
+          </div>
+          <div className="text-2xl font-bold">{userEarned} ETC</div>
+          {/* <p className="text-xs text-gray-500">+15.2% from last month</p> */}
+        </div>
+      )}
 
       <div className="bg-white p-6 rounded-lg shadow">
         <div className="flex flex-row items-center justify-between space-y-0 pb-2">
