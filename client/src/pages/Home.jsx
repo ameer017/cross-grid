@@ -154,7 +154,7 @@ const Home = () => {
                 className="mt-8"
               >
                 <button
-                  className="bg-gray-900 bg-gray-800 text-white font-bold py-3 px-6 rounded-full hover:-translate-y-2 transition-all duration-300 ease-in-out transform hover:scale-110 hover:shadow-lg"
+                  className="bg-gray-800 text-white font-bold py-3 px-6 rounded-lg hover:-translate-y-2 transition-all duration-300 ease-in-out transform hover:scale-110 hover:shadow-lg"
                   onClick={getStarted}
                 >
                   Get Started

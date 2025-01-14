@@ -6,6 +6,7 @@ import { useAppKitAccount } from "@reown/appkit/react";
 
 const Register = () => {
   const { address } = useAppKitAccount();
+  const [name, setName] = useState("");
   const [userType, setUserType] = useState("Producer");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
@@ -26,18 +27,25 @@ const Register = () => {
         throw new Error("Contract not initialized");
       }
 
+      if (!name.trim()) {
+        throw new Error("Name is required");
+      }
+      if (userType === "None") {
+        throw new Error("Please select a valid user type");
+      }
+
       // Convert userType to corresponding value (Producer: 0, Consumer: 1)
       const userTypeValue = userType === "Producer" ? 1 : 2;
 
       // console.log("User Type Value:", userTypeValue);
 
       const gasEstimate = await instance.registerUser.estimateGas(
-        address,
+        name,
         userTypeValue
       );
 
       // Send the transaction with the estimated gas limit
-      const tx = await instance.registerUser(address, userTypeValue, {
+      const tx = await instance.registerUser(name, userTypeValue, {
         gasLimit: (gasEstimate * BigInt(120)) / BigInt(100),
       });
 
@@ -65,8 +73,6 @@ const Register = () => {
     }
   };
 
- 
-
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-6 lg:px-8">
       <div className="max-w-md w-full bg-white shadow-lg rounded-lg p-6">
@@ -74,6 +80,23 @@ const Register = () => {
           Register User
         </h2>
         <form className="space-y-6" onSubmit={handleSubmit}>
+          <div>
+            <label
+              htmlFor="name"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Name
+            </label>
+            <input
+              id="name"
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 bg-white text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              placeholder="Enter your name"
+              required
+            />
+          </div>
           <div>
             <label
               htmlFor="userType"

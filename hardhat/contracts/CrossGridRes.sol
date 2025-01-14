@@ -4,10 +4,10 @@ pragma solidity ^0.8.26;
 import {IEnergy} from "./IEnergy.sol";
 
 /**
- * @title CrossGridRes
+ * @title CrossGridContract
  * @dev A decentralized platform for managing energy production, consumption, and trading using blockchain technology.
  */
-contract CrossGridRes {
+contract CrossGridContract {
     uint256 public dynamicPrice;
     IEnergy public token;
 

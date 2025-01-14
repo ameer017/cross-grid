@@ -5,10 +5,10 @@ import { buildModule } from "@nomicfoundation/hardhat-ignition/modules";
 import hre from "hardhat";
 import Token_Add from "../deployments/chain-4157/deployed_addresses.json"
 
-const ResModule = buildModule("ResModule", (m) => {
-  const _initialPrice = hre.ethers.parseEther("0.5");
+const ContractModule = buildModule("ContractModule", (m) => {
+  const _initialPrice = hre.ethers.parseEther("0.2");
 
-  const energy = m.contract("CrossGridRes", [
+  const energy = m.contract("CrossGridContract", [
     _initialPrice,
     Token_Add["EnergyTokenModule#EnergyCredits"]
   ]);
@@ -16,4 +16,4 @@ const ResModule = buildModule("ResModule", (m) => {
   return { energy };
 });
 
-export default ResModule;
+export default ContractModule;

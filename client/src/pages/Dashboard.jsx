@@ -33,11 +33,12 @@ const Dashboard = () => {
           const user = await contract.users(userAddress);
           // console.log("User profile fetched:", user);
 
-          const [userTypeValue, registered] = [user[0], user[1]];
+          const [name, userTypeValue, registered] = [user[0], user[1], user[2]];
 
           const userType = userTypeValue === 1n ? "Producer" : "Consumer";
 
           setUserProfile({
+            name,
             userType,
             registered: registered ? "Yes" : "No",
           });
@@ -56,6 +57,7 @@ const Dashboard = () => {
       fetchUserProfile();
     }
   }, [address, contract]);
+  // console.log(userProfile.userType)
 
   return (
     <>
@@ -76,8 +78,9 @@ const Dashboard = () => {
           ) : userProfile ? (
             <>
               <div className="mb-8">
-                <h1 className="text-2xl font-bold">User Profile</h1>
-                <p className="text-gray-600 text-2xl">{userProfile.userType}</p>
+                {/* <h1 className="text-2xl font-bold">User Profile</h1> */}
+                <p className="text-gray-800 text-xl">Name: {userProfile.name}</p>
+                <p className="text-gray-600 text-sm"> {userProfile.userType}</p>
               </div>
               <EnergyDashboard />
             </>

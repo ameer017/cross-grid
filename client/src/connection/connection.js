@@ -58,7 +58,8 @@ export const appkit = createAppKit({
   enableEIP6963: true,
   themeVariables: {
     '--w3m-color-mix': '#1c1917',
-    '--w3m-color-mix-strength': 40
+    '--w3m-color-mix-strength': 40,
+    "--wcm-accent-color" : "#FFFFFF"
   },
   themeMode: "dark",
   features: {

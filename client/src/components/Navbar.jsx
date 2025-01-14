@@ -84,7 +84,7 @@ const Navbar = () => {
         >
           <IoMdNotifications size={25} />
         </Link>
-        <appkit-button size="md" />
+        <appkit-button size="md"  />
       </nav>
 
       <button
