@@ -1,6 +1,6 @@
 {
-  "address": "0xB5CBB1034aC0442BC68cE69fc2A24DD67A61e267",
-  "abi":[
+  "address": "0xBB6302937EaD557AAF754C035bCaAF5C214bb8E2",
+  "abi": [
     {
       "inputs": [
         {
@@ -549,6 +549,19 @@
           "internalType": "bool",
           "name": "active",
           "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "fallbackPrice",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
         }
       ],
       "stateMutability": "view",

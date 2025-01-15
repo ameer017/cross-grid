@@ -10,6 +10,7 @@ import {IEnergy} from "./IEnergy.sol";
 contract CrossGridContract {
     uint256 public dynamicPrice;
     IEnergy public token;
+    uint256 public constant fallbackPrice = 500000000000000000;
 
     struct Dispute {
         address initiator;
@@ -185,9 +186,11 @@ contract CrossGridContract {
      * @param user The address of the user whose notifications are to be fetched.
      * @return An array of `Notification` structs containing message and timestamp.
      */
-    function getNotifications(
-        address user
-    ) external view returns (Notification[] memory) {
+    function getNotifications(address user)
+        external
+        view
+        returns (Notification[] memory)
+    {
         return notifications[user];
     }
 
@@ -265,19 +268,15 @@ contract CrossGridContract {
      * @dev Update the dynamic price based on current supply and demand.
      */
     function updateDynamicPrice() internal {
-        require(
-            totalSupplyAggregated > 0,
-            "Total supply must be greater than zero"
-        );
-        require(
-            totalDemandAggregated > 0,
-            "Total demand must be greater than zero"
-        );
-
         uint256 oldPrice = dynamicPrice;
-        dynamicPrice =
-            (totalDemandAggregated * oldPrice) /
-            totalSupplyAggregated;
+
+        if (totalSupplyAggregated > 0 && totalDemandAggregated > 0) {
+            dynamicPrice =
+                (totalDemandAggregated * oldPrice) /
+                totalSupplyAggregated;
+        } else {
+            dynamicPrice = fallbackPrice;
+        }
 
         emit PriceUpdated(oldPrice, dynamicPrice);
     }
@@ -431,9 +430,11 @@ contract CrossGridContract {
      * @return An array of `EnergyProducedRecord` structs, containing the energy production details.
      */
 
-    function getProducedRecords(
-        address user
-    ) external view returns (EnergyProducedRecord[] memory) {
+    function getProducedRecords(address user)
+        external
+        view
+        returns (EnergyProducedRecord[] memory)
+    {
         return producedRecords[user];
     }
 
@@ -445,9 +446,11 @@ contract CrossGridContract {
      * @param user The address of the user whose consumption records are being queried.
      * @return An array of `EnergyConsumedRecord` structs, containing the energy consumption details.
      */
-    function getConsumedRecords(
-        address user
-    ) external view returns (EnergyConsumedRecord[] memory) {
+    function getConsumedRecords(address user)
+        external
+        view
+        returns (EnergyConsumedRecord[] memory)
+    {
         return consumedRecords[user];
     }
 
@@ -508,9 +511,11 @@ contract CrossGridContract {
      * @return An array of EnergyListing structs representing the producer's energy listings.
      */
 
-    function getListings(
-        address producer
-    ) public view returns (EnergyListing[] memory) {
+    function getListings(address producer)
+        public
+        view
+        returns (EnergyListing[] memory)
+    {
         return energyListings[producer];
     }
 
@@ -531,9 +536,11 @@ contract CrossGridContract {
      * @param energyType The energy type to convert.
      * @return The string representation of the energy type.
      */
-    function energyTypeToString(
-        EnergyType energyType
-    ) internal pure returns (string memory) {
+    function energyTypeToString(EnergyType energyType)
+        internal
+        pure
+        returns (string memory)
+    {
         if (energyType == EnergyType.Solar) {
             return "Solar";
         } else if (energyType == EnergyType.Wind) {
@@ -577,10 +584,10 @@ contract CrossGridContract {
      * @param resolutionDetails Details about how the dispute was resolved.
      * Emits a {DisputeResolved} event.
      */
-    function resolveDispute(
-        uint256 disputeId,
-        string memory resolutionDetails
-    ) public onlyOwner {
+    function resolveDispute(uint256 disputeId, string memory resolutionDetails)
+        public
+        onlyOwner
+    {
         require(disputeId < disputes.length, "Dispute ID does not exist");
         Dispute storage dispute = disputes[disputeId];
         require(!dispute.resolved, "Dispute already resolved");
@@ -598,9 +605,11 @@ contract CrossGridContract {
      * @return A `Dispute` struct containing the dispute details.
      */
 
-    function getDispute(
-        uint256 disputeId
-    ) public view returns (Dispute memory) {
+    function getDispute(uint256 disputeId)
+        public
+        view
+        returns (Dispute memory)
+    {
         require(disputeId < disputes.length, "Dispute ID does not exist");
         return disputes[disputeId];
     }
