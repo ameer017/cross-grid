@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { FaBars, FaTimes } from "react-icons/fa";
+import { FaBars, FaTimes, FaInfo } from "react-icons/fa";
 import { IoMdNotifications } from "react-icons/io";
 import { RiShoppingCartLine } from "react-icons/ri";
 import { CgProfile } from "react-icons/cg";
@@ -60,6 +60,13 @@ const Navbar = () => {
       </Link>
 
       <nav className="hidden md:flex items-center space-x-8">
+        
+        <Link
+          to="/about"
+          className="hover:text-cyan-400 transition duration-300 hover:-translate-y-2"
+        >
+          <FaInfo size={25} />
+        </Link>
         <Link
           to="/dashboard"
           className="hover:text-cyan-400 transition duration-300 hover:-translate-y-2"

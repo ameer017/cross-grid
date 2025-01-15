@@ -82,10 +82,21 @@ const EnergyList = ({ data }) => {
           </button>
         </div>
       </div>
+      {filteredListings.length === 0 && (
+        <div className="h-[60vh] flex items-center justify-center flex-col ">
 
+        <img
+          src="https://blogzine.webestica.com/assets/images/icon/empty-cart.svg"
+          className="mx-auto w-1/3 "
+        />
+
+        <p className=" mt-4 font-bold text-xl ">
+          Market is Dry... <span className="text-blue-500"> Try Again later!!</span>
+        </p>
+        </div>
+      )}
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {filteredListings.map((listing, index) => (
-          
           <EnergyCard
             key={index}
             listIndex={index}
@@ -94,7 +105,6 @@ const EnergyList = ({ data }) => {
             Price={listing.Price}
             Producer={listing.Producer}
           />
-          
         ))}
       </div>
     </div>

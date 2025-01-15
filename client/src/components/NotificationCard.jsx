@@ -33,7 +33,7 @@ const NotificationCard = ({ notification }) => {
   // console.log(notification)
 
   return (
-    <div className="flex items-start bg-white p-4 rounded-lg shadow-md">
+    <div className="flex items-center bg-white p-4 rounded-lg shadow-md">
       <div className="flex-shrink-0 mr-3">
         {getIcon(parsedNotification.type)}
       </div>

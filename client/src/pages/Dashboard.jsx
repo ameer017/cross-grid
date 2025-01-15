@@ -69,7 +69,7 @@ const Dashboard = () => {
                 visible={true}
                 height="80"
                 width="80"
-                color="#00FFFF"
+                color="#111827"
                 ariaLabel="triangle-loading"
                 wrapperStyle={{}}
                 wrapperClass=""

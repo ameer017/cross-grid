@@ -21,6 +21,8 @@ const TransactionsSummary = () => {
   const [totalConsumed, setTotalConsumed] = useState(0);
   const [allRecords, setAllRecords] = useState([]);
   const [userEarned, setUserEarned] = useState(0);
+  const [userSpent, setUserSpent] = useState(0);
+  const [totalSold, setTotalSold] = useState(0);
   const { address } = useAppKitAccount();
   const [dispute, setDispute] = useState(null);
 
@@ -70,8 +72,10 @@ const TransactionsSummary = () => {
         const energyRecord = await contract.getProducedRecords(address);
         const energyConsumed = await contract.getConsumedRecords(address);
         const earned = await contract.userEarned(address);
-        // console.log(earned)
+        const spent = await contract.userSpent(address); // Fetch user's spent value
+
         setUserEarned(ethers.formatEther(earned));
+        setUserSpent(ethers.formatEther(spent)); // Set the user's spent value
 
         const totalProduced = energyRecord.reduce((acc, record) => {
           const producedValue = parseFloat(record.produced.toString());
@@ -83,7 +87,14 @@ const TransactionsSummary = () => {
           return acc + consumedValue;
         }, 0);
 
-        // console.log(totalProduced);
+        contract.on("EnergyBought", (producer, consumer, amount, price) => {
+          if (producer === address) {
+            setTotalSold(
+              (prevTotal) => prevTotal + parseFloat(amount.toString())
+            );
+          }
+        });
+        // console.log(totalSold);
         // Format the energy record and store the total produced value
         const formattedRecord = energyRecord.map((record) => {
           const producedValue = record.produced.toString();
@@ -152,7 +163,8 @@ const TransactionsSummary = () => {
             <h3 className="text-sm font-medium">Total Energy Sold</h3>
             <Battery className="h-4 w-4 text-gray-500" />
           </div>
-          <div className="text-sm font-bold">Launching soon!!!</div>
+          {/* <div className="text-sm font-bold">{`${totalSold.toFixed(2)} kWh`}</div> */}
+          <div className="text-sm font-bold">Launching soon!</div>
           <p className="text-xs text-gray-500">+10.5% from last month</p>
         </div>
       )}
@@ -173,7 +185,7 @@ const TransactionsSummary = () => {
             <h3 className="text-sm font-medium">Net Spending</h3>
             <DollarSign className="h-4 w-4 text-gray-500" />
           </div>
-          <div className="text-2xl font-bold">{userEarned} ETC</div>
+          <div className="text-2xl font-bold">{userSpent} ETC</div>
           {/* <p className="text-xs text-gray-500">+15.2% from last month</p> */}
         </div>
       )}

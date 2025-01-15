@@ -127,7 +127,7 @@ const ListEnergy = () => {
           </p>
           <p className="mt-4 text-lg font-semibold">
             Current Price:{" "}
-            {dynamicPrice ? `${dynamicPrice} ETH per kWh` : "Loading..."}
+            {dynamicPrice ? `${dynamicPrice} ETC per kWh` : "Loading..."}
           </p>
         </div>
       </section>
