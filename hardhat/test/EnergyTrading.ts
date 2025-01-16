@@ -354,11 +354,89 @@ describe("EnergyTrading Test", function () {
                     crossGrid.connect(consumerOne).buyEnergy(producerOne.address, 0, consumerBudget)
                 ).to.be.revertedWith("Invalid price or exceeds producer's supply");
             });
+
+
+        
     
        
     
         
     });
+
+
+    describe("Dispute Management", function () {
+        it("should initiate a dispute", async function () {
+            const { producerOne,owner, consumerOne, crossGrid, energycredits } = await loadFixture(deployEnergyTestFixture);
+
+          await crossGrid.connect(producerOne).registerUser("anate", producer); 
+          await crossGrid.connect(consumerOne).registerUser("abdullah", consumer); 
+
+    
+          await crossGrid.connect(consumerOne).initiateDispute(producerOne.address, "Energy not delivered");
+    
+          const disputes = await crossGrid.getDisputes();
+          expect(disputes.length).to.equal(1);
+          expect(disputes[0].reason).to.equal("Energy not delivered");
+          expect(disputes[0].resolved).to.equal(false); 
+        });
+    
+        it("should resolve a dispute", async function () {
+            const { producerOne,owner, consumerOne, crossGrid, energycredits } = await loadFixture(deployEnergyTestFixture);
+
+            await crossGrid.connect(producerOne).registerUser("anate", producer); 
+          await crossGrid.connect(consumerOne).registerUser("abdullah", consumer); 
+    
+          await crossGrid.connect(consumerOne).initiateDispute(producerOne.address, "Energy not delivered");
+
+          await crossGrid.resolveDispute(0, "");
+    
+          const disputes = await crossGrid.getDisputes();
+          expect(disputes[0].resolved).to.equal(true);
+        });
+      });
+
+
+
+      describe("Reset Data", function () {
+        it("should reset user data", async function () {
+            const { producerOne, crossGrid, owner } = await loadFixture(deployEnergyTestFixture);
+
+            await crossGrid.connect(producerOne).registerUser("anate", producer); 
+
+            const ethAmount = "0.1";
+            const price = ethers.parseUnits(ethAmount, "ether");
+            const amount = 100;
+            const energyType = 0;
+          
+          await crossGrid.connect(producerOne).listEnergy(amount, price, energyType);
+    
+          await crossGrid.connect(owner).resetData(producerOne.address);
+           expect( await crossGrid.totalProduced(producerOne.address)).to.equal(0);
+        });
+      });
+
+
+    //   describe("Aggregated Data", function () {
+    //     it("should get aggregated demand", async function () {
+    //         const { producerOne,owner, consumerOne, crossGrid, energycredits } = await loadFixture(deployEnergyTestFixture);
+
+    //         await crossGrid.connect(producerOne).registerUser("anate", producer); 
+    //       await crossGrid.connect(consumerOne).registerUser("abdullah", consumer); 
+
+    //       await crossGrid.connect(consumerOne).consumeEnergy(50);
+    
+    //       const aggregatedDemand = await crossGridContract.getAggregatedDemand();
+    //       expect(aggregatedDemand).to.equal(50);
+    //     });
+    
+    //     it("should get aggregated supply", async function () {
+    //       await crossGridContract.connect(producer).registerUser("Producer", 1);
+    //       await crossGridContract.connect(producer).listEnergy(100, 5, "Solar");
+    
+    //       const aggregatedSupply = await crossGridContract.getAggregatedSupply();
+    //       expect(aggregatedSupply).to.equal(100);
+    //     });
+    //   });
     
     
     
