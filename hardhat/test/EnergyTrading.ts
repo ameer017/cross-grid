@@ -293,6 +293,35 @@ describe("EnergyTrading Test", function () {
                 ).to.be.revertedWith("Allowance insufficient");
             });
 
+            it("Should revert if a consumer has insufficient balance", async function () {
+                const { producerOne, owner, consumerOne, crossGrid, energycredits } = await loadFixture(deployEnergyTestFixture);
+
+                const mintAmountEth = "0.09"
+                const mintAmount = ethers.parseUnits(mintAmountEth, "ether");
+
+                await energycredits.connect(owner).mint(mintAmount, consumerOne.address)
+    
+                
+                await crossGrid.connect(producerOne).registerUser("anate", producer);
+                await crossGrid.connect(consumerOne).registerUser("abdullah", consumer);
+    
+                const ethAmount = "0.1";
+                const price = ethers.parseUnits(ethAmount, "ether");
+                const amount = 100;
+                const energyType = 0;
+                await crossGrid.connect(producerOne).listEnergy(amount, price, energyType);
+
+                const consumerBudgetinEth = "1"
+                const consumerBudget =  ethers.parseUnits(consumerBudgetinEth, "ether");
+
+                await energycredits.connect(consumerOne).approve(crossGrid.target, consumerBudget);
+    
+                
+                await expect(
+                    crossGrid.connect(consumerOne).buyEnergy(producerOne.address, 0, consumerBudget)
+                ).to.be.revertedWith("Insufficient token balance");
+            });
+
 
             it("Should revert if consumer tries to buy more than the amount of energy listed", async function () {
                 const { producerOne,owner, consumerOne, crossGrid, energycredits } = await loadFixture(deployEnergyTestFixture);
