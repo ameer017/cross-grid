@@ -348,10 +348,6 @@ describe("EnergyTrading Test", function () {
                 
                 
                 await energycredits.connect(consumerOne).approve(crossGrid.target, consumerBudget);
-
-                
-
-    
     
                 
                 await expect(
