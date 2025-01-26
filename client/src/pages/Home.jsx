@@ -1,29 +1,81 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import Particles from "react-particles";
-import { loadFull } from "tsparticles";
 import Loader from "../components/Loader/Loader";
 import Layout from "../components/Layout";
 import { useNavigate } from "react-router-dom";
-import ElectricityEffect from "../components/ElectricityEffect";
 
+const BackgroundShapes = () => {
+  const shapes = [
+    {
+      className:
+        "absolute w-[500px] h-[500px] bg-gradient-to-r from-blue-500 to-teal-400 opacity-40 rounded-full filter blur-3xl",
+      initial: { x: -200, y: -200, scale: 1 },
+      animate: {
+        x: [0, 100, -100, 0],
+        y: [0, -100, 100, 0],
+        scale: [1, 1.2, 1],
+        opacity: [0.4, 0.6, 0.4],
+      },
+      style: { top: "10%", left: "15%" },
+      transition: { repeat: Infinity, duration: 10 },
+    },
+    {
+      className:
+        "absolute w-[400px] h-[400px] bg-gradient-to-r from-purple-500 to-pink-400 opacity-30 rounded-full filter blur-2xl",
+      initial: { x: 200, y: 200, scale: 1 },
+      animate: {
+        x: [0, -150, 150, 0],
+        y: [0, 150, -150, 0],
+        scale: [1, 1.3, 1],
+        opacity: [0.3, 0.5, 0.3],
+      },
+      style: { bottom: "20%", right: "10%" },
+      transition: { repeat: Infinity, duration: 12 },
+    },
+    {
+      className:
+        "absolute w-[300px] h-[300px] bg-gradient-to-r from-yellow-500 to-orange-400 opacity-20 rounded-full filter blur-2xl",
+      initial: { x: -150, y: 150, scale: 1 },
+      animate: {
+        x: [0, 120, -120, 0],
+        y: [0, -120, 120, 0],
+        scale: [1, 1.1, 1],
+        opacity: [0.2, 0.4, 0.2],
+      },
+      style: { top: "50%", left: "40%" },
+      transition: { repeat: Infinity, duration: 8 },
+    },
+  ];
+
+  return (
+    <div className="absolute inset-0 overflow-hidden">
+      {shapes.map((shape, index) => (
+        <motion.div
+          key={index}
+          className={shape.className}
+          initial={shape.initial}
+          animate={shape.animate}
+          transition={shape.transition}
+          style={shape.style}
+        ></motion.div>
+      ))}
+    </div>
+  );
+};
 
 const Home = () => {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
-  const getStarted = async () => {
+  const getStarted = () => {
     navigate("get-started");
   };
 
   useEffect(() => {
-    setTimeout(() => {
+    const timer = setTimeout(() => {
       setLoading(false);
     }, 4000);
-  }, []);
-
-  const particlesInit = useCallback(async (engine) => {
-    await loadFull(engine);
+    return () => clearTimeout(timer);
   }, []);
 
   return (
@@ -32,137 +84,47 @@ const Home = () => {
         <Loader />
       ) : (
         <Layout>
-          <main className="relative h-screen overflow-hidden">
-            <div
-              className="absolute inset-0 bg-cover bg-center bg-no-repeat bg-gray-900 "
-            >
-              <div
-                className="absolute inset-0"
-                style={{
-                  background: `radial-gradient(circle, rgba(255,223,186,0.4) 0%, rgba(255,140,0,0.2) 50%, rgba(0,0,0,0.8) 100%)`,
-                }}
-              ></div>
-            </div>
+          <main className="relative h-screen w-screen overflow-hidden bg-gray-900 text-white">
+            {/* Background Aesthetic Shapes */}
+            <BackgroundShapes />
 
-            <Particles
-              id="tsparticles"
-              init={particlesInit}
-              options={{
-                fullScreen: { enable: false },
-                background: {
-                  color: {
-                    value: "transparent",
-                  },
-                },
-                fpsLimit: 120,
-                interactivity: {
-                  events: {
-                    onClick: {
-                      enable: true,
-                      mode: "push",
-                    },
-                    onHover: {
-                      enable: true,
-                      mode: "repulse",
-                    },
-                    resize: true,
-                  },
-                  modes: {
-                    push: {
-                      quantity: 4,
-                    },
-                    repulse: {
-                      distance: 200,
-                      duration: 0.4,
-                    },
-                  },
-                },
-                particles: {
-                  color: {
-                    value: "#ffffff",
-                  },
-                  links: {
-                    color: "#ffffff",
-                    distance: 150,
-                    enable: true,
-                    opacity: 0.5,
-                    width: 1,
-                  },
-                  move: {
-                    direction: "none",
-                    enable: true,
-                    outModes: {
-                      default: "bounce",
-                    },
-                    random: false,
-                    speed: 2,
-                    straight: false,
-                  },
-                  number: {
-                    density: {
-                      enable: true,
-                      area: 800,
-                    },
-                    value: 80,
-                  },
-                  opacity: {
-                    value: 0.5,
-                  },
-                  shape: {
-                    type: "circle",
-                  },
-                  size: {
-                    value: { min: 1, max: 5 },
-                  },
-                },
-                detectRetina: true,
-              }}
-              className="absolute inset-0 z-10"
-            />
-
-            <div className="relative flex justify-center items-center h-full flex-col text-white px-6 text-center z-20">
+            {/* Content Overlay */}
+            <div className="absolute inset-0 flex flex-col items-center justify-center z-10 px-4 text-center">
               <motion.h1
                 initial={{ opacity: 0, y: -50 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 1 }}
-                className="text-5xl md:text-7xl font-bold mb-4"
+                className="text-5xl md:text-7xl font-bold mb-6"
               >
-                Welcome to{" "}
-                <span
-                  className="text-transparent bg-clip-text inline-block"
-                  style={{
-                    WebkitTextStroke: "2px white",
-                  }}
-                >
+                Welcome to
+                <span className="ml-4 bg-gradient-to-r from-purple-500 via-teal-400 to-blue-500 bg-clip-text text-transparent">
                   Cross Grid
                 </span>
               </motion.h1>
+
               <motion.p
                 initial={{ opacity: 0, y: 50 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 1, delay: 0.5 }}
-                className="text-lg md:text-2xl max-w-3xl"
+                className="text-lg md:text-2xl max-w-3xl leading-relaxed"
               >
-                We're committed to empowering communities to share and trade
-                renewable energy efficiently and transparently.
+                We're committed to empowering communities to share and trade renewable energy efficiently and transparently.
               </motion.p>
 
               <motion.div
                 initial={{ opacity: 0, scale: 0.5 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.5, delay: 1 }}
-                className="mt-8"
+                className="mt-10"
               >
                 <button
-                  className="bg-gray-800 text-white font-bold py-3 px-6 rounded-lg hover:-translate-y-2 transition-all duration-300 ease-in-out transform hover:scale-110 hover:shadow-lg"
+                  className="bg-gradient-to-r from-teal-500 to-blue-500 text-white font-bold py-3 px-8 rounded-full shadow-lg hover:shadow-2xl hover:scale-110 transform transition-transform duration-300"
                   onClick={getStarted}
                 >
                   Get Started
                 </button>
               </motion.div>
             </div>
-
-            <ElectricityEffect />
           </main>
         </Layout>
       )}
@@ -171,4 +133,3 @@ const Home = () => {
 };
 
 export default Home;
-

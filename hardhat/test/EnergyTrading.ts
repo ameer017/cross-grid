@@ -1,5 +1,5 @@
 import { loadFixture } from "@nomicfoundation/hardhat-toolbox/network-helpers";
-import { expect } from "chai";
+import { expect, should } from "chai";
 import {ethers} from "hardhat";
 
 
@@ -66,6 +66,26 @@ describe("EnergyTrading Test", function () {
             expect(consumerData.registered).to.equal(true);
         });
 
+        it("Should indicate a registered user", async function () {
+            const { owner, producerOne, crossGrid, consumerOne } = await loadFixture(deployEnergyTestFixture);
+    
+         
+            await crossGrid.connect(producerOne).registerUser("anate", producer);
+            const registeredUser = await crossGrid.isRegistered(producerOne.address);
+            expect(registeredUser).to.be.true;
+
+            
+           
+    
+        
+          
+            const notRegistered = await crossGrid.isRegistered(consumerOne.address);
+            expect(notRegistered).to.be.false;
+            
+        });
+
+
+
         it("Should revert if the user is already registered", async function () {
             const { producerOne, crossGrid } = await loadFixture(deployEnergyTestFixture);
     
@@ -104,7 +124,7 @@ describe("EnergyTrading Test", function () {
         it("Should allow a registered producer to list energy", async function () {
             const { producerOne, crossGrid } = await loadFixture(deployEnergyTestFixture);
         
-            // Step 1: Register producer
+            
             await crossGrid.connect(producerOne).registerUser("anate", producer);
         
             const ethAmount = "0.1";
@@ -128,6 +148,26 @@ describe("EnergyTrading Test", function () {
             const totalSupply = await crossGrid.totalSupplyAggregated();
             expect(totalSupply).to.equal(amount);
         });
+
+        it("should record listed energies of a producer", async function () {
+            const { producerOne, crossGrid } = await loadFixture(deployEnergyTestFixture);
+        
+            
+            await crossGrid.connect(producerOne).registerUser("anate", producer);
+        
+            const ethAmount = "0.1";
+
+            const price = ethers.parseUnits(ethAmount, "ether");
+            const amount = 100;
+            const energyType = 0;
+        
+            await crossGrid.connect(producerOne).listEnergy(amount, price, energyType)
+
+            const producerListings = await crossGrid.getProducedRecords(producerOne.address)
+
+            expect(producerListings.length).to.equal(1)
+
+        })
 
 
 
@@ -380,6 +420,20 @@ describe("EnergyTrading Test", function () {
           expect(disputes[0].resolved).to.equal(false); 
         });
     
+        it("should get a dispute", async function () {
+            const { producerOne,owner, consumerOne, crossGrid, energycredits } = await loadFixture(deployEnergyTestFixture);
+
+            await crossGrid.connect(producerOne).registerUser("anate", producer); 
+          await crossGrid.connect(consumerOne).registerUser("abdullah", consumer); 
+    
+          await crossGrid.connect(consumerOne).initiateDispute(producerOne.address, "Energy not delivered");
+
+          const dispute = await crossGrid.getDispute(0);
+    
+         
+          expect(dispute.resolved).to.be.false;
+        });
+
         it("should resolve a dispute", async function () {
             const { producerOne,owner, consumerOne, crossGrid, energycredits } = await loadFixture(deployEnergyTestFixture);
 
@@ -393,6 +447,8 @@ describe("EnergyTrading Test", function () {
           const disputes = await crossGrid.getDisputes();
           expect(disputes[0].resolved).to.equal(true);
         });
+
+
       });
 
 
@@ -415,28 +471,123 @@ describe("EnergyTrading Test", function () {
         });
       });
 
+      describe("getUserType", function () {
 
-    //   describe("Aggregated Data", function () {
-    //     it("should get aggregated demand", async function () {
-    //         const { producerOne,owner, consumerOne, crossGrid, energycredits } = await loadFixture(deployEnergyTestFixture);
+        it("should get the type of user", async function () {
+            const { producerOne, crossGrid, owner } = await loadFixture(deployEnergyTestFixture);
 
-    //         await crossGrid.connect(producerOne).registerUser("anate", producer); 
-    //       await crossGrid.connect(consumerOne).registerUser("abdullah", consumer); 
+            await crossGrid.connect(producerOne).registerUser("anate", producer); 
 
-    //       await crossGrid.connect(consumerOne).consumeEnergy(50);
+            const userType = await crossGrid.connect(owner).getUserType(producerOne.address)
+          
+            expect(userType).to.equal(producer)
+        });
+
+        it("should revert if user is not registered", async function () {
+            const { producerOne, crossGrid, owner } = await loadFixture(deployEnergyTestFixture);
+          
+            await expect( crossGrid.connect(owner).getUserType(producerOne.address)).to.revertedWith("User is not registered")
+        });
+
+
+      });
+
+      describe("fetchAllEnergyListings", function () {
+
+        it("should get the type of user", async function () {
+            const { producerOne, producerTwo, crossGrid, owner } = await loadFixture(deployEnergyTestFixture);
+
+              // Step 1: Register producer
+              await crossGrid.connect(producerOne).registerUser("anate", producer);
+              await crossGrid.connect(producerTwo).registerUser("abdullah", producer);
+        
+              const ethAmount = "0.1";
+
+              const price =ethers.parseUnits(ethAmount, "ether")
+
+              const energyOne = {
+                price :  ethers.parseUnits(ethAmount, "ether"),
+                amount : 100,
+                energyType : 0,
+              }
+              const energyTwo = {
+                price :  ethers.parseUnits(ethAmount, "ether"),
+                amount : 200,
+                energyType : 1,
+              }
+  
+           
+          
+              await crossGrid.connect(producerOne).listEnergy(energyOne.amount, energyOne.price, energyOne.energyType)
+              await crossGrid.connect(producerTwo).listEnergy(energyTwo.amount, energyTwo.price, energyTwo.energyType)
+
+              const allListings = await crossGrid.fetchAllEnergyListings();
+
+              expect(allListings.length).to.equal(2);
+
+                // Checkig if listed energy details are correct 
+                expect(allListings[0].producer).to.equal(producerOne.address);
+                expect(allListings[0].amount).to.equal(100);
+                expect(allListings[0].price).to.equal(price);
+                expect(allListings[0].energyType).to.equal(0); 
+
+
+                expect(allListings[1].producer).to.equal(producerTwo.address);
+                expect(allListings[1].amount).to.equal(200);
+                expect(allListings[1].price).to.equal(price);
+                expect(allListings[1].energyType).to.equal(1); 
+        });
+      });
+
+
+
+
+  
+
+
+      describe("Record Consumption", function () {
+        it("should record an energy consumption", async function () {
+            const { producerOne, owner, consumerOne, crossGrid, energycredits } = await loadFixture(deployEnergyTestFixture);
+
+                const mintAmountEth = "5"
+                const mintAmount = ethers.parseUnits(mintAmountEth, "ether");
+
+                await energycredits.connect(owner).mint(mintAmount, consumerOne.address)
     
-    //       const aggregatedDemand = await crossGridContract.getAggregatedDemand();
-    //       expect(aggregatedDemand).to.equal(50);
-    //     });
+              
+                await crossGrid.connect(producerOne).registerUser("anate", producer);
+                await crossGrid.connect(consumerOne).registerUser("abdullah", consumer);
     
-    //     it("should get aggregated supply", async function () {
-    //       await crossGridContract.connect(producer).registerUser("Producer", 1);
-    //       await crossGridContract.connect(producer).listEnergy(100, 5, "Solar");
+                
+                const ethAmount = "0.1";
+                const price = ethers.parseUnits(ethAmount, "ether");
+                const amount = 100;
+                const energyType = 0;
+                await crossGrid.connect(producerOne).listEnergy(amount, price, energyType);
+
+                const consumerBudgetinEth = "1"
+                const consumerBudget =  ethers.parseUnits(consumerBudgetinEth, "ether");
     
-    //       const aggregatedSupply = await crossGridContract.getAggregatedSupply();
-    //       expect(aggregatedSupply).to.equal(100);
-    //     });
-    //   });
+                
+                
+                await energycredits.connect(consumerOne).approve(crossGrid.target, consumerBudget);
+    
+                
+                await crossGrid.connect(consumerOne).buyEnergy(producerOne.address, 0, consumerBudget);
+
+                const consumed = await crossGrid.getConsumedRecords(consumerOne.address)
+
+                expect(consumed.length).to.equal(1)
+
+                
+
+
+         
+        });
+    
+       
+      });
+
     
     
     
