@@ -4,7 +4,7 @@ import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import { useAppKitAccount } from "@reown/appkit/react";
 import { ethers } from "ethers";
-import CONTRACT_ABI from "../util/EnergyTrading.json"
+import CONTRACT_ABI from "../util/EnergyTrading.json";
 import useToken from "../hook/useTokenContract";
 
 const PurchaseModal = ({
@@ -34,42 +34,57 @@ const PurchaseModal = ({
     setLoading(true);
     setMessage("");
     setEventMessage("");
-  
+
     try {
       if (!instance) {
         throw new Error("Contract not initialized");
       }
-  
+
       const amountInTokens = ethers.parseUnits(purchaseAmount);
       const realindex = energyIndex.toString();
-  
-     
-      const approveTx = await tokenInstance.approve(CONTRACT_ABI.address, amountInTokens);
+
+      const approveTx = await tokenInstance.approve(
+        CONTRACT_ABI.address,
+        amountInTokens
+      );
       await approveTx.wait();
-  
-    
-      const allowance = await tokenInstance.allowance(address, CONTRACT_ABI.address);
+
+      const allowance = await tokenInstance.allowance(
+        address,
+        CONTRACT_ABI.address
+      );
       if (allowance < amountInTokens) {
         throw new Error("Allowance insufficient. Please approve more tokens.");
       }
-  
-      
-      const gasEstimate = await instance.buyEnergy.estimateGas(
+
+      let gasEstimate;
+      try {
+        gasEstimate = await instance.buyEnergy.estimateGas(
+          Producer,
+          energyIndex,
+          amountInTokens
+        );
+      } catch (error) {
+        console.error("Gas estimation failed:", error);
+        return toast.error(`Gas estimation failed: ${error.message}`);
+      }
+
+      const tx = await instance.buyEnergy(
         Producer,
         energyIndex,
-        amountInTokens
+        amountInTokens,
+        {
+          gasLimit: (gasEstimate * BigInt(120)) / BigInt(100),
+        }
       );
-  
-      
-      const tx = await instance.buyEnergy(Producer, energyIndex, amountInTokens, {
-        gasLimit: (gasEstimate * BigInt(120)) / BigInt(100),
-      });
-  
+
+      console.log({ Producer, energyIndex, amountInTokens });
+
       const receipt = await tx.wait();
+      console.log(receipt);
       setMessage("Energy Purchased successfully!");
       toast.success("Energy Purchased successfully!");
-  
-      
+
       instance.once("EnergyBought", (producer, consumer, amount, price) => {
         setEventMessage(
           `Event: Energy Bought - ${consumer} bought ${amount} kWh of energy from ${producer} at ${price}`
@@ -78,7 +93,7 @@ const PurchaseModal = ({
           `Event emitted: ${amount} kWh of energy purchased by ${consumer}`
         );
       });
-  
+
       navigate("/dashboard");
     } catch (error) {
       console.error("Error Purchasing energy:", error);
@@ -88,13 +103,13 @@ const PurchaseModal = ({
       setLoading(false);
     }
   };
-  
-  
-
 
   return (
     <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center z-50">
-      <form onSubmit={handleSubmit}  className="bg-white p-6 rounded-lg flex flex-col gap-2 shadow-md min-w-[100px]">
+      <form
+        onSubmit={handleSubmit}
+        className="bg-white p-6 rounded-lg flex flex-col gap-2 shadow-md min-w-[100px]"
+      >
         <h2 className="text-xl font-semibold">Confirm Purchase</h2>
         <p className="text-gray-600">Energy Type: {EnergyType}</p>
         <p className="text-gray-600">Amount: {Amount} kWh</p>
@@ -126,13 +141,13 @@ const PurchaseModal = ({
             Cancel
           </button>
           <button
-          type="submit"
-          disabled={loading}
+            type="submit"
+            disabled={loading}
             className={`px-4 py-2 rounded-md ${
-                loading
-                  ? "bg-gray-400 cursor-not-allowed"
-                  : "bg-green-500 hover:bg-green-600 focus:ring-green-700"
-              }`}
+              loading
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-green-500 hover:bg-green-600 focus:ring-green-700"
+            }`}
           >
             Confirm
           </button>
