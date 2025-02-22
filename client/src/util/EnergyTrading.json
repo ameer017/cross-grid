@@ -1,36 +1,6 @@
 {
-  "address": "0xBB6302937EaD557AAF754C035bCaAF5C214bb8E2",
+  "address": "0x240998FA7f717b8BB38cD4B2F91952B4Ab0758Ed",
   "abi": [
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "producer",
-          "type": "address"
-        },
-        {
-          "internalType": "uint256",
-          "name": "listingIndex",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "price",
-          "type": "uint256"
-        }
-      ],
-      "name": "buyEnergy",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "clearNotifications",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
     {
       "inputs": [
         {
@@ -41,6 +11,11 @@
         {
           "internalType": "address",
           "name": "_token",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "_disputeResolution",
           "type": "address"
         }
       ],
@@ -229,45 +204,29 @@
       "type": "event"
     },
     {
+      "anonymous": false,
       "inputs": [
         {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "escrowId",
+          "type": "uint256"
+        },
+        {
+          "indexed": true,
           "internalType": "address",
-          "name": "respondent",
+          "name": "seller",
           "type": "address"
         },
         {
-          "internalType": "string",
-          "name": "reason",
-          "type": "string"
-        }
-      ],
-      "name": "initiateDispute",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
+          "indexed": false,
           "internalType": "uint256",
           "name": "amount",
           "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "price",
-          "type": "uint256"
-        },
-        {
-          "internalType": "enum CrossGridContract.EnergyType",
-          "name": "energyType",
-          "type": "uint8"
         }
       ],
-      "name": "listEnergy",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
+      "name": "FundsReleased",
+      "type": "event"
     },
     {
       "anonymous": false,
@@ -333,55 +292,6 @@
       "type": "event"
     },
     {
-      "inputs": [
-        {
-          "internalType": "string",
-          "name": "name",
-          "type": "string"
-        },
-        {
-          "internalType": "enum CrossGridContract.UserType",
-          "name": "userType",
-          "type": "uint8"
-        }
-      ],
-      "name": "registerUser",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "user",
-          "type": "address"
-        }
-      ],
-      "name": "resetData",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "uint256",
-          "name": "disputeId",
-          "type": "uint256"
-        },
-        {
-          "internalType": "string",
-          "name": "resolutionDetails",
-          "type": "string"
-        }
-      ],
-      "name": "resolveDispute",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
       "anonymous": false,
       "inputs": [
         {
@@ -399,6 +309,36 @@
       ],
       "name": "UserRegistered",
       "type": "event"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "producer",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "listingIndex",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "price",
+          "type": "uint256"
+        }
+      ],
+      "name": "buyEnergy",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "clearNotifications",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
     },
     {
       "inputs": [
@@ -448,6 +388,19 @@
           "internalType": "uint256",
           "name": "",
           "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "disputeResolution",
+      "outputs": [
+        {
+          "internalType": "contract DisputeResolution",
+          "name": "",
+          "type": "address"
         }
       ],
       "stateMutability": "view",
@@ -556,6 +509,53 @@
     },
     {
       "inputs": [],
+      "name": "escrowCounter",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "escrows",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "buyer",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "seller",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bool",
+          "name": "released",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
       "name": "fallbackPrice",
       "outputs": [
         {
@@ -635,6 +635,61 @@
     },
     {
       "inputs": [],
+      "name": "getAllDisputes",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "address",
+              "name": "initiator",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "respondent",
+              "type": "address"
+            },
+            {
+              "internalType": "string",
+              "name": "reason",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "resolutionDetails",
+              "type": "string"
+            },
+            {
+              "internalType": "bool",
+              "name": "resolved",
+              "type": "bool"
+            },
+            {
+              "internalType": "uint256",
+              "name": "timestamp",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "votesForInitiator",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "votesForRespondent",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct DisputeResolution.Dispute[]",
+          "name": "",
+          "type": "tuple[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
       "name": "getAllUsers",
       "outputs": [
         {
@@ -693,86 +748,44 @@
       "name": "getDispute",
       "outputs": [
         {
-          "components": [
-            {
-              "internalType": "address",
-              "name": "initiator",
-              "type": "address"
-            },
-            {
-              "internalType": "address",
-              "name": "respondent",
-              "type": "address"
-            },
-            {
-              "internalType": "string",
-              "name": "reason",
-              "type": "string"
-            },
-            {
-              "internalType": "string",
-              "name": "resolutionDetails",
-              "type": "string"
-            },
-            {
-              "internalType": "bool",
-              "name": "resolved",
-              "type": "bool"
-            },
-            {
-              "internalType": "uint256",
-              "name": "timestamp",
-              "type": "uint256"
-            }
-          ],
-          "internalType": "struct CrossGridContract.Dispute",
-          "name": "",
-          "type": "tuple"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "getDisputes",
-      "outputs": [
+          "internalType": "address",
+          "name": "initiator",
+          "type": "address"
+        },
         {
-          "components": [
-            {
-              "internalType": "address",
-              "name": "initiator",
-              "type": "address"
-            },
-            {
-              "internalType": "address",
-              "name": "respondent",
-              "type": "address"
-            },
-            {
-              "internalType": "string",
-              "name": "reason",
-              "type": "string"
-            },
-            {
-              "internalType": "string",
-              "name": "resolutionDetails",
-              "type": "string"
-            },
-            {
-              "internalType": "bool",
-              "name": "resolved",
-              "type": "bool"
-            },
-            {
-              "internalType": "uint256",
-              "name": "timestamp",
-              "type": "uint256"
-            }
-          ],
-          "internalType": "struct CrossGridContract.Dispute[]",
-          "name": "",
-          "type": "tuple[]"
+          "internalType": "address",
+          "name": "respondent",
+          "type": "address"
+        },
+        {
+          "internalType": "string",
+          "name": "reason",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "resolutionDetails",
+          "type": "string"
+        },
+        {
+          "internalType": "bool",
+          "name": "resolved",
+          "type": "bool"
+        },
+        {
+          "internalType": "uint256",
+          "name": "timestamp",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "votesForInitiator",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "votesForRespondent",
+          "type": "uint256"
         }
       ],
       "stateMutability": "view",
@@ -914,6 +927,24 @@
       "inputs": [
         {
           "internalType": "address",
+          "name": "respondent",
+          "type": "address"
+        },
+        {
+          "internalType": "string",
+          "name": "reason",
+          "type": "string"
+        }
+      ],
+      "name": "initiateDispute",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
           "name": "user",
           "type": "address"
         }
@@ -927,6 +958,29 @@
         }
       ],
       "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "price",
+          "type": "uint256"
+        },
+        {
+          "internalType": "enum CrossGridContract.EnergyType",
+          "name": "energyType",
+          "type": "uint8"
+        }
+      ],
+      "name": "listEnergy",
+      "outputs": [],
+      "stateMutability": "nonpayable",
       "type": "function"
     },
     {
@@ -1003,6 +1057,50 @@
         }
       ],
       "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "internalType": "enum CrossGridContract.UserType",
+          "name": "userType",
+          "type": "uint8"
+        }
+      ],
+      "name": "registerUser",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "escrowId",
+          "type": "uint256"
+        }
+      ],
+      "name": "releaseFunds",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "user",
+          "type": "address"
+        }
+      ],
+      "name": "resetData",
+      "outputs": [],
+      "stateMutability": "nonpayable",
       "type": "function"
     },
     {
@@ -1109,6 +1207,25 @@
           "type": "address"
         }
       ],
+      "name": "userSpent",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
       "name": "users",
       "outputs": [
         {
@@ -1133,20 +1250,19 @@
     {
       "inputs": [
         {
-          "internalType": "address",
-          "name": "",
-          "type": "address"
-        }
-      ],
-      "name": "userSpent",
-      "outputs": [
-        {
           "internalType": "uint256",
-          "name": "",
+          "name": "disputeId",
           "type": "uint256"
+        },
+        {
+          "internalType": "bool",
+          "name": "votedForInitiator",
+          "type": "bool"
         }
       ],
-      "stateMutability": "view",
+      "name": "voteOnDispute",
+      "outputs": [],
+      "stateMutability": "nonpayable",
       "type": "function"
     }
   ]

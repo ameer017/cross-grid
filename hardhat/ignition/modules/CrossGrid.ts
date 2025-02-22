@@ -10,7 +10,8 @@ const ContractModule = buildModule("ContractModule", (m) => {
 
   const energy = m.contract("CrossGridContract", [
     _initialPrice,
-    Token_Add["EnergyTokenModule#EnergyCredits"]
+    Token_Add["EnergyTokenModule#EnergyCredits"],
+    
   ]);
 
   return { energy };

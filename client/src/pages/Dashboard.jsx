@@ -79,13 +79,15 @@ const Dashboard = () => {
             <>
               <div className="mb-8">
                 {/* <h1 className="text-2xl font-bold">User Profile</h1> */}
-                <p className="text-gray-800 text-xl">Name: {userProfile.name}</p>
+                <p className="text-gray-800 text-xl">
+                  {userProfile.name}
+                </p>
                 <p className="text-gray-600 text-sm"> {userProfile.userType}</p>
               </div>
               <EnergyDashboard />
             </>
           ) : (
-            <p>User not found</p>
+            <p className="text-center">User not found, Have you signed up?</p>
           )}
         </div>
       </div>

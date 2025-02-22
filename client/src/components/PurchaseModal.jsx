@@ -14,12 +14,14 @@ const PurchaseModal = ({
   Producer,
   onClose,
   energyIndex,
+  userType,
 }) => {
   const [purchaseAmount, setPurchaseAmount] = useState("");
   const { address } = useAppKitAccount();
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [eventMessage, setEventMessage] = useState("");
+  const [showActionButtons, setShowActionButtons] = useState(false);
 
   const estimatedKWh =
     purchaseAmount && !isNaN(purchaseAmount)
@@ -83,6 +85,7 @@ const PurchaseModal = ({
       const receipt = await tx.wait();
       console.log(receipt);
       setMessage("Energy Purchased successfully!");
+      setShowActionButtons(true);
       toast.success("Energy Purchased successfully!");
 
       instance.once("EnergyBought", (producer, consumer, amount, price) => {
@@ -93,14 +96,35 @@ const PurchaseModal = ({
           `Event emitted: ${amount} kWh of energy purchased by ${consumer}`
         );
       });
-
-      navigate("/dashboard");
     } catch (error) {
       console.error("Error Purchasing energy:", error);
       setMessage(`Error: ${error.message}`);
       toast.error(`Error: ${error.message}`);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleReleaseFunds = async () => {
+    try {
+      const tx = await instance.releaseFunds(escrowId);
+      await tx.wait();
+      toast.success("Funds released successfully!");
+      onClose();
+      navigate("/dashboard");
+    } catch (error) {
+      toast.error(`Error releasing funds: ${error.message}`);
+    }
+  };
+
+  const handleOpenDispute = async () => {
+    try {
+      const tx = await instance.initiateDispute(escrowId, "Quality issue");
+      await tx.wait();
+      toast.success("Dispute opened successfully!");
+      onClose();
+    } catch (error) {
+      toast.error(`Error opening dispute: ${error.message}`);
     }
   };
 
@@ -123,7 +147,7 @@ const PurchaseModal = ({
             name="purchaseAmount"
             placeholder="Please enter the amount"
             value={purchaseAmount}
-            onChange={(e) => setPurchaseAmount(e.target.value)} // Update state on input
+            onChange={(e) => setPurchaseAmount(e.target.value)}
           />
           <p>ETC</p>
         </div>
@@ -133,25 +157,42 @@ const PurchaseModal = ({
           <p>{estimatedKWh} kWh</p>
         </div>
 
-        <div className="flex justify-end gap-4">
-          <button
-            onClick={onClose}
-            className="px-4 py-2 bg-gray-300 text-gray-800 rounded-md hover:bg-gray-400"
-          >
-            Cancel
-          </button>
-          <button
-            type="submit"
-            disabled={loading}
-            className={`px-4 py-2 rounded-md ${
-              loading
-                ? "bg-gray-400 cursor-not-allowed"
-                : "bg-green-500 hover:bg-green-600 focus:ring-green-700"
-            }`}
-          >
-            Confirm
-          </button>
-        </div>
+        {!showActionButtons ? (
+          <div className="flex justify-end gap-4">
+            <button
+              onClick={onClose}
+              className="px-4 py-2 bg-gray-300 text-gray-800 rounded-md hover:bg-gray-400"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={loading}
+              className={`px-4 py-2 rounded-md ${
+                loading
+                  ? "bg-gray-400 cursor-not-allowed"
+                  : "bg-green-500 hover:bg-green-600"
+              }`}
+            >
+              {loading ? "Processing..." : "Confirm"}
+            </button>
+          </div>
+        ) : (
+          <div className="flex gap-3 justify-end">
+            <button
+              onClick={handleOpenDispute}
+              className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600"
+            >
+              Open Dispute
+            </button>
+            <button
+              onClick={handleReleaseFunds}
+              className="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600"
+            >
+              Release Now
+            </button>
+          </div>
+        )}
       </form>
     </div>
   );

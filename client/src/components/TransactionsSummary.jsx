@@ -107,7 +107,7 @@ const TransactionsSummary = () => {
           };
         });
 
-        const fetchDispute = await contract.getDisputes();
+        const fetchDispute = await contract.getAllDisputes();
         // console.log(fetchDispute.length)
         setDispute(fetchDispute.length);
 

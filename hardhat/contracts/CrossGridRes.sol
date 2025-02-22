@@ -2,6 +2,7 @@
 pragma solidity ^0.8.26;
 
 import {IEnergy} from "./IEnergy.sol";
+import {DisputeResolution} from "./DisputeManagement.sol";
 
 /**
  * @title CrossGridContract
@@ -10,7 +11,8 @@ import {IEnergy} from "./IEnergy.sol";
 contract CrossGridContract {
     uint256 public dynamicPrice;
     IEnergy public token;
-    uint256 public constant fallbackPrice = 500000000000000000;
+    uint256 public constant fallbackPrice = 300000000000000000;
+    DisputeResolution public disputeResolution;
 
     struct Dispute {
         address initiator;
@@ -41,7 +43,13 @@ contract CrossGridContract {
         uint256 timestamp;
     }
 
-    mapping(address => Notification[]) public notifications;
+    struct Escrow {
+        address buyer;
+        address seller;
+        uint256 amount;
+        bool released;
+        bool delivered;
+    }
 
     enum UserType {
         None,
@@ -67,23 +75,29 @@ contract CrossGridContract {
         EnergyType energyType;
     }
 
+    // mappings and state variables
     address public owner;
     address[] private userList;
     bool internal locked;
     Dispute[] public disputes;
+    uint256 public escrowCounter;
     uint256 public totalSupplyAggregated;
     uint256 public totalDemandAggregated;
 
+    mapping(address => EnergyConsumedRecord[]) public consumedRecords;
+    mapping(uint256 => Escrow) public escrows;
     mapping(address => EnergyListing[]) public energyListings;
     mapping(address => EnergyProducedRecord[]) public producedRecords;
-    mapping(address => EnergyConsumedRecord[]) public consumedRecords;
     mapping(address => uint256) public customerDemand;
-    mapping(address => User) public users;
+    mapping(address => Notification[]) public notifications;
     mapping(address => uint256) public totalProduced;
     mapping(address => uint256) public totalConsumed;
+    mapping(address => User) public users;
     mapping(address => uint256) public userEarned;
     mapping(address => uint256) public userSpent;
+    // =====================================================================
 
+    // Events
     event DataReset(address indexed user, uint256 timestamp);
     event DisputeInitiated(
         address indexed initiator,
@@ -102,6 +116,7 @@ contract CrossGridContract {
         uint256 amount,
         uint256 timestamp
     );
+
     event EnergyListed(
         address indexed producer,
         uint256 amount,
@@ -114,6 +129,12 @@ contract CrossGridContract {
         EnergyType energyType,
         uint256 timestamp
     );
+    event FundsReleased(
+        uint256 indexed escrowId,
+        address indexed seller,
+        uint256 amount
+    );
+
     event NotificationAdded(
         address indexed user,
         string message,
@@ -122,6 +143,7 @@ contract CrossGridContract {
     event PriceUpdated(uint256 oldPrice, uint256 newPrice);
     event UserRegistered(address indexed user, UserType userType);
     event NotificationEmitted(address indexed user, string message);
+    // =====================================================================
 
     modifier noReentrancyGuard() {
         require(!locked, "Reentrancy is not allowed");
@@ -153,15 +175,22 @@ contract CrossGridContract {
         _;
     }
 
+    // =====================================================================
+
     /**
      * @notice Initializes the contract with the initial price and token address.
      * @param initialPrice The initial price per unit of energy.
      * @param _token Address of the ERC-20 token used for transactions.
      */
-    constructor(uint256 initialPrice, address _token) {
+    constructor(
+        uint256 initialPrice,
+        address _token,
+        address _disputeResolution
+    ) {
         require(initialPrice > 0, "Initial price must be greater than zero");
         dynamicPrice = initialPrice;
         token = IEnergy(_token);
+        disputeResolution = DisputeResolution(_disputeResolution);
 
         owner = msg.sender;
     }
@@ -186,11 +215,9 @@ contract CrossGridContract {
      * @param user The address of the user whose notifications are to be fetched.
      * @return An array of `Notification` structs containing message and timestamp.
      */
-    function getNotifications(address user)
-        external
-        view
-        returns (Notification[] memory)
-    {
+    function getNotifications(
+        address user
+    ) external view returns (Notification[] memory) {
         return notifications[user];
     }
 
@@ -355,11 +382,21 @@ contract CrossGridContract {
             "Insufficient token balance"
         );
 
-        // Transfer the tokens from the buyer to the producer
-        token.transferFrom(msg.sender, producer, price);
+        // Transfer the tokens from the buyer's wallet to the contract to be escrowed
+        token.transferFrom(msg.sender, address(this), price);
+
+        //initialize escrow
+        escrows[escrowCounter] = Escrow({
+            buyer: msg.sender,
+            seller: producer,
+            amount: price,
+            released: false,
+            delivered: false
+        });
 
         totalSupplyAggregated -= amountToBuy;
         totalDemandAggregated += amountToBuy;
+
         // Adjust the producer's energy supply
         listing.amount -= amountToBuy;
         if (listing.amount == 0) {
@@ -369,12 +406,71 @@ contract CrossGridContract {
         userEarned[producer] += price;
         userSpent[msg.sender] += price;
 
-        // Record the consumer's energy purchase
-        recordConsumption(msg.sender, amountToBuy, listing.energyType);
         updateDynamicPrice();
 
         emit EnergyBought(producer, msg.sender, amountToBuy, listing.price);
-        notifyEventEmission("Energy purchased successfully.");
+        notifyEventEmission(
+            "Energy purchased successfully, Funds held in escrow till KW received"
+        );
+    }
+
+    /**
+     * @notice Allows the producer to confirm that they have delivered the energy.
+     * @dev This must be done before the buyer can release funds.
+     * @param escrowId The ID of the escrow transaction.
+     */
+    function confirmEnergyDelivery(uint256 escrowId) public {
+        Escrow storage escrow = escrows[escrowId];
+
+        require(
+            escrow.seller == msg.sender,
+            "Only the seller can confirm delivery"
+        );
+        require(!escrow.delivered, "Delivery already confirmed");
+
+        escrow.delivered = true;
+
+        notifyEventEmission("Energy delivery confirmed by the producer.");
+    }
+
+    /**
+     * @notice Allows the buyer to release funds held in escrow to the seller.
+     * @dev This function can only be called by the buyer associated with the escrow.
+     *      It ensures that funds are only released once and transfers the escrowed amount to the seller.
+     *      Emits a {FundsReleased} event upon successful release.
+     * @param escrowId The ID of the escrow containing the funds to be released.
+     * @dev Requirements:
+     * - The caller must be the buyer associated with the escrow.
+     * - The funds must not have already been released.
+     * @dev Effects:
+     * - Transfers the escrowed amount to the seller.
+     * - Marks the escrow as released.
+     * - Updates the seller's earned balance.
+     * - Emits a {FundsReleased} event.
+     * - Notifies the buyer of the successful release.
+     */
+    function releaseFunds(uint256 escrowId) public noReentrancyGuard {
+        Escrow storage escrow = escrows[escrowId];
+
+        require(escrow.buyer == msg.sender, "Only the buyer can release funds");
+        require(escrow.delivered, "Energy delivery not confirmed by producer"); // ✅ Added check
+        require(!escrow.released, "Funds already released");
+
+        // Transfer funds from escrow to seller
+        token.transfer(escrow.seller, escrow.amount);
+
+        escrow.released = true;
+        userEarned[escrow.seller] += escrow.amount;
+
+        // Record energy consumption after funds are released
+        recordConsumption(
+            escrow.buyer,
+            escrow.amount / energyListings[escrow.seller][escrowId].price,
+            energyListings[escrow.seller][escrowId].energyType
+        );
+
+        emit FundsReleased(escrowId, escrow.seller, escrow.amount);
+        notifyEventEmission("Funds released to seller.");
     }
 
     /**
@@ -430,11 +526,9 @@ contract CrossGridContract {
      * @return An array of `EnergyProducedRecord` structs, containing the energy production details.
      */
 
-    function getProducedRecords(address user)
-        external
-        view
-        returns (EnergyProducedRecord[] memory)
-    {
+    function getProducedRecords(
+        address user
+    ) external view returns (EnergyProducedRecord[] memory) {
         return producedRecords[user];
     }
 
@@ -446,11 +540,9 @@ contract CrossGridContract {
      * @param user The address of the user whose consumption records are being queried.
      * @return An array of `EnergyConsumedRecord` structs, containing the energy consumption details.
      */
-    function getConsumedRecords(address user)
-        external
-        view
-        returns (EnergyConsumedRecord[] memory)
-    {
+    function getConsumedRecords(
+        address user
+    ) external view returns (EnergyConsumedRecord[] memory) {
         return consumedRecords[user];
     }
 
@@ -506,20 +598,6 @@ contract CrossGridContract {
     }
 
     /**
-     * @dev Returns the list of energy listings for a given producer.
-     * @param producer The address of the producer whose listings are being fetched.
-     * @return An array of EnergyListing structs representing the producer's energy listings.
-     */
-
-    function getListings(address producer)
-        public
-        view
-        returns (EnergyListing[] memory)
-    {
-        return energyListings[producer];
-    }
-
-    /**
      * @dev Reset energy data for a user. Only callable by the owner.
      */
     function resetData(address user) external onlyOwner {
@@ -536,11 +614,9 @@ contract CrossGridContract {
      * @param energyType The energy type to convert.
      * @return The string representation of the energy type.
      */
-    function energyTypeToString(EnergyType energyType)
-        internal
-        pure
-        returns (string memory)
-    {
+    function energyTypeToString(
+        EnergyType energyType
+    ) internal pure returns (string memory) {
         if (energyType == EnergyType.Solar) {
             return "Solar";
         } else if (energyType == EnergyType.Wind) {
@@ -555,71 +631,65 @@ contract CrossGridContract {
 
     /**
      * @notice Initiates a new dispute.
-     * @dev Adds a new dispute to the list with the given respondent and reason.
      * @param respondent The address of the party against whom the dispute is raised.
      * @param reason A brief explanation of the dispute.
-     * Emits a {DisputeInitiated} event.
      */
-
-    function initiateDispute(address respondent, string memory reason) public {
-        disputes.push(
-            Dispute({
-                initiator: msg.sender,
-                respondent: respondent,
-                reason: reason,
-                resolutionDetails: "",
-                resolved: false,
-                timestamp: block.timestamp
-            })
-        );
-        emit DisputeInitiated(msg.sender, respondent, reason);
-        notifyEventEmission("Dispute initiated successfully.");
+    function initiateDispute(
+        address respondent,
+        string memory reason
+    ) external {
+        disputeResolution.initiateDispute(respondent, reason);
     }
 
     /**
-     * @notice Resolves an existing dispute.
-     * @dev Updates the resolution details and marks the dispute as resolved.
-     *      Can only be called by the contract owner.
-     * @param disputeId The ID of the dispute to resolve.
-     * @param resolutionDetails Details about how the dispute was resolved.
-     * Emits a {DisputeResolved} event.
+     * @notice Allows council members to vote on a dispute.
+     * @param disputeId The ID of the dispute to vote on.
+     * @param votedForInitiator True if voting in favor of the initiator, false for the respondent.
      */
-    function resolveDispute(uint256 disputeId, string memory resolutionDetails)
-        public
-        onlyOwner
-    {
-        require(disputeId < disputes.length, "Dispute ID does not exist");
-        Dispute storage dispute = disputes[disputeId];
-        require(!dispute.resolved, "Dispute already resolved");
-
-        dispute.resolutionDetails = resolutionDetails;
-        dispute.resolved = true;
-
-        emit DisputeResolved(disputeId, resolutionDetails);
+    function voteOnDispute(uint256 disputeId, bool votedForInitiator) external {
+        disputeResolution.voteOnDispute(disputeId, votedForInitiator);
     }
 
     /**
      * @notice Retrieves details of a specific dispute.
-     * @dev Ensures the dispute ID exists before returning the details.
      * @param disputeId The ID of the dispute to retrieve.
-     * @return A `Dispute` struct containing the dispute details.
+     * @return initiator The address of the initiator.
+     * @return respondent The address of the respondent.
+     * @return reason The reason for the dispute.
+     * @return resolutionDetails The resolution details.
+     * @return resolved Whether the dispute is resolved.
+     * @return timestamp The timestamp of the dispute.
+     * @return votesForInitiator The number of votes in favor of the initiator.
+     * @return votesForRespondent The number of votes in favor of the respondent.
      */
-
-    function getDispute(uint256 disputeId)
-        public
+    function getDispute(
+        uint256 disputeId
+    )
+        external
         view
-        returns (Dispute memory)
+        returns (
+            address initiator,
+            address respondent,
+            string memory reason,
+            string memory resolutionDetails,
+            bool resolved,
+            uint256 timestamp,
+            uint256 votesForInitiator,
+            uint256 votesForRespondent
+        )
     {
-        require(disputeId < disputes.length, "Dispute ID does not exist");
-        return disputes[disputeId];
+        return disputeResolution.getDispute(disputeId);
     }
 
     /**
      * @notice Retrieves the list of all disputes.
-     * @dev Returns an array of all disputes in the contract.
-     * @return An array of `Dispute` structs.
+     * @return An array of dispute details.
      */
-    function getDisputes() public view returns (Dispute[] memory) {
-        return disputes;
+    function getAllDisputes()
+        external
+        view
+        returns (DisputeResolution.Dispute[] memory)
+    {
+        return disputeResolution.getAllDisputes();
     }
 }

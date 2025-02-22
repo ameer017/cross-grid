@@ -6,11 +6,55 @@ import { readOnlyProvider } from "../constant/readProvider";
 import { useAppKitAccount } from "@reown/appkit/react";
 
 const MarketPlace = () => {
+  const { address } = useAppKitAccount();
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const contract = new Contract(ABI.address, ABI.abi, readOnlyProvider);
   const { isConnected } = useAppKitAccount();
+  const [userType, setUserType] = useState("");
+  const [userList, setUserList] = useState([]);
+  const [userProfile, setUserProfile] = useState(null);
+
+  useEffect(() => {
+    const fetchUserType = async () => {
+      try {
+        const users = await contract.getAllUsers();
+        setUserList(users);
+
+        const userAdd = users.find(
+          (item) => item.toLowerCase() === address.toLowerCase()
+        );
+
+        if (userAdd) {
+          const profile = await contract.users(userAdd);
+
+          const [name, userTypeValue, registered] = [
+            profile[0],
+            profile[1],
+            profile[2],
+          ];
+
+          const userType = userTypeValue === 1n ? "Producer" : "Consumer";
+
+          setUserProfile({
+            name,
+            userType,
+            registered: registered ? "Yes" : "No",
+          });
+          setUserType(userType);
+        } else {
+          console.log("User not found in the contract");
+        }
+      } catch (error) {
+        toast.error("Error fetching user profile:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUserType();
+  }, [address, contract]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -65,7 +109,7 @@ const MarketPlace = () => {
   return (
     <>
       <div className="px-20 pt-40">
-        <EnergyList data={data} />
+        <EnergyList data={data} userType={userType} />
       </div>
     </>
   );
