@@ -8,6 +8,7 @@ const Loader = () => {
         <div class="loader">
           <p>loading</p>
           <div class="words">
+            <span class="word">Cross Grid ✌🏽</span>
             <span class="word">Decentralization</span>
             <span class="word">Energy</span>
             <span class="word">Resources</span>
