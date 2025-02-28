@@ -4,13 +4,8 @@
 import { buildModule } from "@nomicfoundation/hardhat-ignition/modules";
 
 const DisputeModule = buildModule("DisputeModule", (m) => {
-    const _councils = [
-        "0x....",
-        "0x...."]
 
-    const dispute = m.contract("CrossGridContract", [
-        _councils,
-    ]);
+    const dispute = m.contract("CrossGridContract");
 
     return { dispute };
 });
