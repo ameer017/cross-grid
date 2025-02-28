@@ -41,20 +41,6 @@ contract DisputeResolution {
     }
 
     /**
-     * @notice Constructor to set default council members at deployment.
-     * @param initialCouncil The list of initial council members.
-     */
-    constructor(address[] memory initialCouncil) {
-        for (uint256 i = 0; i < initialCouncil.length; i++) {
-            if (!isCouncilMember[initialCouncil[i]]) {
-                councilMembers.push(initialCouncil[i]);
-                isCouncilMember[initialCouncil[i]] = true;
-                emit CouncilMemberAdded(initialCouncil[i]);
-            }
-        }
-    }
-
-    /**
      * @notice Adds a new council member.
      * @param member The address of the new council member.
      */
