@@ -1,5 +1,5 @@
 {
-  "address": "0x240998FA7f717b8BB38cD4B2F91952B4Ab0758Ed",
+  "address": "0x90A7E63827C9870CEAAFCcA9D92726fF45DBD9b9",
   "abi": [
     {
       "inputs": [
@@ -343,6 +343,19 @@
     {
       "inputs": [
         {
+          "internalType": "uint256",
+          "name": "escrowId",
+          "type": "uint256"
+        }
+      ],
+      "name": "confirmEnergyDelivery",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
           "internalType": "address",
           "name": "",
           "type": "address"
@@ -548,6 +561,11 @@
         {
           "internalType": "bool",
           "name": "released",
+          "type": "bool"
+        },
+        {
+          "internalType": "bool",
+          "name": "delivered",
           "type": "bool"
         }
       ],
@@ -786,52 +804,6 @@
           "internalType": "uint256",
           "name": "votesForRespondent",
           "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "producer",
-          "type": "address"
-        }
-      ],
-      "name": "getListings",
-      "outputs": [
-        {
-          "components": [
-            {
-              "internalType": "address",
-              "name": "producer",
-              "type": "address"
-            },
-            {
-              "internalType": "uint256",
-              "name": "amount",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
-              "name": "price",
-              "type": "uint256"
-            },
-            {
-              "internalType": "enum CrossGridContract.EnergyType",
-              "name": "energyType",
-              "type": "uint8"
-            },
-            {
-              "internalType": "bool",
-              "name": "active",
-              "type": "bool"
-            }
-          ],
-          "internalType": "struct CrossGridContract.EnergyListing[]",
-          "name": "",
-          "type": "tuple[]"
         }
       ],
       "stateMutability": "view",

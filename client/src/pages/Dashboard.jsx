@@ -6,92 +6,106 @@ import ABI from "../util/EnergyTrading.json";
 import { readOnlyProvider } from "../constant/readProvider";
 import { toast } from "react-toastify";
 import { Triangle } from "react-loader-spinner";
+import { useNavigate } from "react-router-dom";
 
 const Dashboard = () => {
   const { address } = useAppKitAccount();
   const [userProfile, setUserProfile] = useState(null);
-  const [userList, setUserList] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [countdown, setCountdown] = useState(null);
+  const navigate = useNavigate();
 
   const contract = new Contract(ABI.address, ABI.abi, readOnlyProvider);
 
   useEffect(() => {
+    let isMounted = true;
+
     const fetchUserProfile = async () => {
       try {
         const allUsers = await contract.getAllUsers();
-        setUserList(allUsers);
-
-        // console.log("All registered users:", allUsers);
-        // console.log("Current user's address:", address);
 
         const userAddress = allUsers.find(
           (user) => user.toLowerCase() === address.toLowerCase()
         );
-        // console.log(userAddress);
 
         if (userAddress) {
           const user = await contract.users(userAddress);
-          // console.log("User profile fetched:", user);
-
           const [name, userTypeValue, registered] = [user[0], user[1], user[2]];
-
           const userType = userTypeValue === 1n ? "Producer" : "Consumer";
 
-          setUserProfile({
-            name,
-            userType,
-            registered: registered ? "Yes" : "No",
-          });
-          // console.log(userProfile)
+          if (isMounted) {
+            setUserProfile({
+              name,
+              userType,
+              registered: registered ? "Yes" : "No",
+            });
+            setCountdown(null);
+          }
         } else {
-          console.log("User not found in the contract");
+          if (isMounted) {
+            setUserProfile(null);
+            if (countdown === null) setCountdown(5);
+          }
         }
       } catch (error) {
         toast.error("Error fetching user profile:", error);
       } finally {
-        setLoading(false);
+        if (isMounted) setLoading(false);
       }
     };
 
     if (address) {
       fetchUserProfile();
     }
+
+    return () => {
+      isMounted = false;
+    };
   }, [address, contract]);
-  // console.log(userProfile.userType)
+
+  useEffect(() => {
+    if (countdown === null) return;
+
+    if (countdown > 0) {
+      const timer = setTimeout(() => {
+        setCountdown((prev) => prev - 1);
+      }, 1000);
+      return () => clearTimeout(timer);
+    } else {
+      navigate("/get-started");
+    }
+  }, [countdown, navigate]);
 
   return (
-    <>
-      <div className="px-20 pt-40">
-        <div>
-          {loading ? (
-            <div className="flex items-center justify-center h-[85vh] ">
-              <Triangle
-                visible={true}
-                height="80"
-                width="80"
-                color="#111827"
-                ariaLabel="triangle-loading"
-                wrapperStyle={{}}
-                wrapperClass=""
-              />
+    <div className="px-20 pt-40">
+      <div>
+        {loading ? (
+          <div className="flex items-center justify-center h-[85vh]">
+            <Triangle
+              visible={true}
+              height="80"
+              width="80"
+              color="#111827"
+              ariaLabel="triangle-loading"
+            />
+          </div>
+        ) : userProfile ? (
+          <>
+            <div className="mb-8">
+              <p className="text-gray-800 text-xl">{userProfile.name}</p>
+              <p className="text-gray-600 text-sm">{userProfile.userType}</p>
             </div>
-          ) : userProfile ? (
-            <>
-              <div className="mb-8">
-                {/* <h1 className="text-2xl font-bold">User Profile</h1> */}
-                <p className="text-gray-800 text-xl">
-                  {userProfile.name}
-                </p>
-                <p className="text-gray-600 text-sm"> {userProfile.userType}</p>
-              </div>
-              <EnergyDashboard />
-            </>
-          ) : (
-            <p className="text-center">User not found, Have you signed up?</p>
-          )}
-        </div>
+            <EnergyDashboard />
+          </>
+        ) : (
+          <div className="text-center">
+            <p className="text-xl font-semibold text-red-600">
+              User not found, redirecting to sign-up in {countdown}...
+            </p>
+          </div>
+        )}
       </div>
-    </>
+    </div>
   );
 };
 
