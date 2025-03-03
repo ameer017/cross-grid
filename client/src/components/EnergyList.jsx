@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Search, DollarSign } from "lucide-react";
 import EnergyCard from "./EnergyCard";
 
-const EnergyList = ({ data, userType }) => {
+const EnergyList = ({ data, userType, contract }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [maxBudget, setMaxBudget] = useState("");
   const [filteredListings, setFilteredListings] = useState(data);
@@ -106,6 +106,7 @@ const EnergyList = ({ data, userType }) => {
             Producer={listing.Producer}
             Available={listing.Available}
             userType={userType}
+            contract={contract}
           />
         ))}
       </div>

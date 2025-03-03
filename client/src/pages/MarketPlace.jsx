@@ -113,7 +113,7 @@ const MarketPlace = () => {
   return (
     <>
       <div className="px-20 pt-40">
-        <EnergyList data={data} userType={userType} />
+        <EnergyList data={data} userType={userType} contract={contract} />
       </div>
     </>
   );

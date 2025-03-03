@@ -31,6 +31,9 @@ const PurchaseModal = ({
   const navigate = useNavigate();
   const instance = useContract(true);
   const tokenInstance = useToken(true);
+
+  
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -102,29 +105,6 @@ const PurchaseModal = ({
       toast.error(`Error: ${error.message}`);
     } finally {
       setLoading(false);
-    }
-  };
-
-  const handleReleaseFunds = async () => {
-    try {
-      const tx = await instance.releaseFunds(escrowId);
-      await tx.wait();
-      toast.success("Funds released successfully!");
-      onClose();
-      navigate("/dashboard");
-    } catch (error) {
-      toast.error(`Error releasing funds: ${error.message}`);
-    }
-  };
-
-  const handleOpenDispute = async () => {
-    try {
-      const tx = await instance.initiateDispute(escrowId, "Quality issue");
-      await tx.wait();
-      toast.success("Dispute opened successfully!");
-      onClose();
-    } catch (error) {
-      toast.error(`Error opening dispute: ${error.message}`);
     }
   };
 
