@@ -84,15 +84,15 @@ const EnergyList = ({ data, userType }) => {
       </div>
       {filteredListings.length === 0 && (
         <div className="h-[60vh] flex items-center justify-center flex-col ">
+          <img
+            src="https://blogzine.webestica.com/assets/images/icon/empty-cart.svg"
+            className="mx-auto w-1/3 "
+          />
 
-        <img
-          src="https://blogzine.webestica.com/assets/images/icon/empty-cart.svg"
-          className="mx-auto w-1/3 "
-        />
-
-        <p className=" mt-4 font-bold text-xl ">
-          Market is Dry... <span className="text-blue-500"> Try Again later!!</span>
-        </p>
+          <p className=" mt-4 font-bold text-xl ">
+            Market is Dry...{" "}
+            <span className="text-blue-500"> Try Again later!!</span>
+          </p>
         </div>
       )}
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -104,6 +104,7 @@ const EnergyList = ({ data, userType }) => {
             Amount={listing.Amount}
             Price={listing.Price}
             Producer={listing.Producer}
+            Available={listing.Available}
             userType={userType}
           />
         ))}

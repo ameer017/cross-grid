@@ -9,11 +9,12 @@ const EnergyCard = ({
   Amount,
   Price,
   Producer,
+  Available,
   listIndex,
   userType,
 }) => {
   const [isModalOpen, setModalOpen] = useState(false);
-
+  // console.log(Available)
   const truncateString = (str) => {
     if (str.length > 10) {
       return `${str.slice(0, 4)}...${str.slice(-4)}`;
@@ -24,6 +25,10 @@ const EnergyCard = ({
   const toggleModal = () => {
     setModalOpen(!isModalOpen);
   };
+
+  const handleEnergySent = async () => {
+    try {} catch (error) {}
+  }
 
   return (
     <div>
@@ -52,16 +57,13 @@ const EnergyCard = ({
           >
             Purchase
           </button>
-        ) :
-         (
-          <p className="text-gray-200">
-            Order listed.... Be on the lookout!!
-          </p>
-
-         )
-        }
-
-       
+        ) : Available ? (
+          <button className="w-full bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition-colors duration-300">
+            Energy sent successfully!
+          </button>
+        ) : (
+          <p className="text-gray-200">Order listed.... Be on the lookout!!</p>
+        )}
       </div>
 
       {isModalOpen && (

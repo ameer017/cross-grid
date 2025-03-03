@@ -84,7 +84,7 @@ const PurchaseModal = ({
 
       const receipt = await tx.wait();
       console.log(receipt);
-      setMessage("Energy Purchased successfully!");
+      setMessage("Energy Purchased successfully!.. Funds in Escrow.");
       setShowActionButtons(true);
       toast.success("Energy Purchased successfully!");
 
@@ -157,42 +157,25 @@ const PurchaseModal = ({
           <p>{estimatedKWh} kWh</p>
         </div>
 
-        {!showActionButtons ? (
-          <div className="flex justify-end gap-4">
-            <button
-              onClick={onClose}
-              className="px-4 py-2 bg-gray-300 text-gray-800 rounded-md hover:bg-gray-400"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={loading}
-              className={`px-4 py-2 rounded-md ${
-                loading
-                  ? "bg-gray-400 cursor-not-allowed"
-                  : "bg-green-500 hover:bg-green-600"
-              }`}
-            >
-              {loading ? "Processing..." : "Confirm"}
-            </button>
-          </div>
-        ) : (
-          <div className="flex gap-3 justify-end">
-            <button
-              onClick={handleOpenDispute}
-              className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600"
-            >
-              Open Dispute
-            </button>
-            <button
-              onClick={handleReleaseFunds}
-              className="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600"
-            >
-              Release Now
-            </button>
-          </div>
-        )}
+        <div className="flex justify-end gap-4">
+          <button
+            onClick={onClose}
+            className="px-4 py-2 bg-gray-300 text-gray-800 rounded-md hover:bg-gray-400"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            disabled={loading}
+            className={`px-4 py-2 rounded-md ${
+              loading
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-green-500 hover:bg-green-600"
+            }`}
+          >
+            {loading ? "Processing..." : "Confirm"}
+          </button>
+        </div>
       </form>
     </div>
   );

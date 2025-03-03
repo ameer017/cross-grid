@@ -89,7 +89,8 @@ const ListEnergy = () => {
       );
       console.log("Transaction sent:", tx);
 
-      await tx.wait();
+      const receipt = await tx.wait();
+      console.log("final tx:", receipt);
       toast.success("Energy successfully listed!");
       setAmount("");
       setPrice("");

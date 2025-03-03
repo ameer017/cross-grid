@@ -4,6 +4,7 @@ import ABI from "../util/EnergyTrading.json";
 import { useEffect, useState } from "react";
 import { readOnlyProvider } from "../constant/readProvider";
 import { useAppKitAccount } from "@reown/appkit/react";
+import { toast } from "react-toastify";
 
 const MarketPlace = () => {
   const { address } = useAppKitAccount();
@@ -67,6 +68,7 @@ const MarketPlace = () => {
         };
 
         const datas = await contract.fetchAllEnergyListings();
+
         if (!datas) {
           throw new Error("No energy listings available");
         }
@@ -76,9 +78,11 @@ const MarketPlace = () => {
           Amount: item.amount.toString(),
           Price: ethers.formatUnits(item.price, "ether"),
           EnergyType: energyTypes[item.energyType] || "None",
+          Available: item.active,
         }));
 
         setData(formattedData);
+        // console.log(data);
       } catch (err) {
         setError(err.message || "Error fetching data");
         console.error("Error fetching data", err);
