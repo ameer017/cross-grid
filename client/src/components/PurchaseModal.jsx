@@ -22,6 +22,7 @@ const PurchaseModal = ({
   const [message, setMessage] = useState("");
   const [eventMessage, setEventMessage] = useState("");
   const [showActionButtons, setShowActionButtons] = useState(false);
+  const [escrowIds, setEscrowIds] = useState([]);
 
   const estimatedKWh =
     purchaseAmount && !isNaN(purchaseAmount)
@@ -31,8 +32,6 @@ const PurchaseModal = ({
   const navigate = useNavigate();
   const instance = useContract(true);
   const tokenInstance = useToken(true);
-
-  
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -87,6 +86,12 @@ const PurchaseModal = ({
 
       const receipt = await tx.wait();
       console.log(receipt);
+      const escrowId = (await contract.escrowCounter()) - 1;
+
+      console.log("Escrow ID for this transaction:", escrowId);
+
+      // Store the escrow ID with this energy purchase
+      setEscrowIds((prev) => [...prev, escrowId]);
       setMessage("Energy Purchased successfully!.. Funds in Escrow.");
       setShowActionButtons(true);
       toast.success("Energy Purchased successfully!");

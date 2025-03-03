@@ -393,6 +393,7 @@ contract CrossGridContract {
             released: false,
             delivered: false
         });
+        escrowCounter++;
 
         totalSupplyAggregated -= amountToBuy;
         totalDemandAggregated += amountToBuy;
