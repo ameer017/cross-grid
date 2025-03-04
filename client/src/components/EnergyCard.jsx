@@ -31,9 +31,7 @@ const EnergyCard = ({
 
     try {
       const provider = new JsonRpcProvider(
-        `https://crossfi-testnet.g.alchemy.com/v2/${
-          import.meta.env.VITE_APP_NODE_URL
-        }`
+        "https://alfajores-forno.celo-testnet.org/"
       );
 
       if (!provider) {
