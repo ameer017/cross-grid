@@ -30,7 +30,11 @@ const EnergyCard = ({
     if (!contract || !address) return;
 
     try {
-      const provider = new JsonRpcProvider("https://rpc.testnet.ms");
+      const provider = new JsonRpcProvider(
+        `https://crossfi-testnet.g.alchemy.com/v2/${
+          import.meta.env.VITE_APP_NODE_URL
+        }`
+      );
 
       if (!provider) {
         console.error("No provider found for the contract.");
@@ -54,6 +58,7 @@ const EnergyCard = ({
 
     try {
       const totalEscrows = await contract.escrowCounter();
+      // console.log(totalEscrows)
       for (let i = 0; i < totalEscrows; i++) {
         const escrow = await contract.escrows(i);
 
@@ -61,14 +66,14 @@ const EnergyCard = ({
           escrow.buyer.toLowerCase() === buyer.toLowerCase() &&
           escrow.amount.toString() === price.toString()
         ) {
-          return i; // Found the matching escrow ID
+          return i;
         }
       }
     } catch (error) {
       console.error("Error fetching escrow ID:", error);
     }
 
-    return null; // No matching escrow found
+    return null;
   };
 
   // console.log(Available)
