@@ -1,6 +1,6 @@
 import { createAppKit } from "@reown/appkit/react";
 import { EthersAdapter } from "@reown/appkit-adapter-ethers";
-import { defineChain } from "@reown/appkit/networks";
+import { celo, celoAlfajores, defineChain } from "@reown/appkit/networks";
 
 const crossFiTestnet = defineChain({
   id: 4157,
@@ -45,21 +45,20 @@ const metadata = {
 // 4. Create a AppKit instance
 export const appkit = createAppKit({
   adapters: [new EthersAdapter()],
-  networks: [crossFiTestnet],
+  networks: [celoAlfajores],
   chainImages: {
-    [crossFiTestnet.id]:
-      "https://s2.coinmarketcap.com/static/img/coins/64x64/26202.png",
+    [celo.id]: "https://cryptologos.cc/logos/celo-celo-logo.png?v=040",
   },
   metadata,
   projectId,
   allowUnsupportedChain: false,
   allWallets: "SHOW",
-  defaultNetwork: crossFiTestnet,
+  defaultNetwork: celoAlfajores,
   enableEIP6963: true,
   themeVariables: {
-    '--w3m-color-mix': '#1c1917',
-    '--w3m-color-mix-strength': 40,
-    "--wcm-accent-color" : "#FFFFFF"
+    "--w3m-color-mix": "#1c1917",
+    "--w3m-color-mix-strength": 40,
+    "--wcm-accent-color": "#FFFFFF",
   },
   themeMode: "dark",
   features: {
