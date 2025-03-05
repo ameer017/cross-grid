@@ -1,6 +1,19 @@
 {
-  "address": "0xafDf8e2516aA6Ad0De2f76Ef99B913dd6b143dB9",
+  "address": "0xf892396d5C441088dF76B68dCc05342d6a5eFE05",
   "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "member",
+          "type": "address"
+        }
+      ],
+      "name": "addCouncilMember",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
     {
       "anonymous": false,
       "inputs": [
@@ -72,6 +85,37 @@
       "type": "event"
     },
     {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "respondent",
+          "type": "address"
+        },
+        {
+          "internalType": "string",
+          "name": "reason",
+          "type": "string"
+        }
+      ],
+      "name": "initiateDispute",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "member",
+          "type": "address"
+        }
+      ],
+      "name": "removeCouncilMember",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
       "anonymous": false,
       "inputs": [
         {
@@ -99,12 +143,17 @@
     {
       "inputs": [
         {
-          "internalType": "address",
-          "name": "member",
-          "type": "address"
+          "internalType": "uint256",
+          "name": "disputeId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bool",
+          "name": "votedForInitiator",
+          "type": "bool"
         }
       ],
-      "name": "addCouncilMember",
+      "name": "voteOnDispute",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
@@ -319,24 +368,6 @@
       "inputs": [
         {
           "internalType": "address",
-          "name": "respondent",
-          "type": "address"
-        },
-        {
-          "internalType": "string",
-          "name": "reason",
-          "type": "string"
-        }
-      ],
-      "name": "initiateDispute",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
           "name": "",
           "type": "address"
         }
@@ -350,37 +381,6 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "member",
-          "type": "address"
-        }
-      ],
-      "name": "removeCouncilMember",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "uint256",
-          "name": "disputeId",
-          "type": "uint256"
-        },
-        {
-          "internalType": "bool",
-          "name": "votedForInitiator",
-          "type": "bool"
-        }
-      ],
-      "name": "voteOnDispute",
-      "outputs": [],
-      "stateMutability": "nonpayable",
       "type": "function"
     }
   ]
