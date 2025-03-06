@@ -1,11 +1,11 @@
 import { useState } from "react";
-import useContract from "../hook/useContract";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import { useAppKitAccount } from "@reown/appkit/react";
 import { ethers } from "ethers";
 import CONTRACT_ABI from "../util/EnergyTrading.json";
 import useToken from "../hook/useTokenContract";
+import useContractInstance from "../hook/useContract";
 
 const PurchaseModal = ({
   EnergyType,
@@ -30,7 +30,7 @@ const PurchaseModal = ({
       : "0";
 
   const navigate = useNavigate();
-  const instance = useContract(true);
+  const instance = useContractInstance(true);
   const tokenInstance = useToken(true);
 
   const handleSubmit = async (e) => {
@@ -86,7 +86,7 @@ const PurchaseModal = ({
 
       const receipt = await tx.wait();
       console.log(receipt);
-      const escrowId = (await contract.escrowCounter()) - 1;
+      const escrowId = (await instance.escrowCounter()) - 1;
 
       console.log("Escrow ID for this transaction:", escrowId);
 

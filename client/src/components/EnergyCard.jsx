@@ -4,11 +4,15 @@ import { SiTidal } from "react-icons/si";
 import { FcBiomass } from "react-icons/fc";
 import PurchaseModal from "./PurchaseModal";
 import { useAppKitAccount } from "@reown/appkit/react";
-import { Contract, JsonRpcProvider } from "ethers";
+import { Contract, ethers, JsonRpcProvider } from "ethers";
 import ABI from "../util/EnergyTrading.json";
 import { readOnlyProvider } from "../constant/readProvider";
 import { toast } from "react-toastify";
 import DisputeForm from "./DisputeForm";
+import { confirmAlert } from "react-confirm-alert";
+import "react-confirm-alert/src/react-confirm-alert.css";
+import { useNavigate } from "react-router-dom";
+import useContractInstance from "../hook/useContract";
 
 const EnergyCard = ({
   EnergyType,
@@ -25,6 +29,8 @@ const EnergyCard = ({
   const contract = new Contract(ABI.address, ABI.abi, readOnlyProvider);
   const [escrowIds, setEscrowIds] = useState([]);
   const [isDisputeModalOpen, setDisputeModalOpen] = useState(false);
+  const navigate = useNavigate();
+  const instance = useContractInstance(true);
 
   const checkPurchaseHistory = async () => {
     if (!contract || !address) return;
@@ -51,26 +57,49 @@ const EnergyCard = ({
     }
   };
 
-  const getEscrowIdForTransaction = async (buyer, price) => {
+  const getEscrowIdForTransaction = async (userAddress, userType) => {
     if (!contract) return null;
 
     try {
-      const totalEscrows = await contract.escrowCounter();
-      // console.log(totalEscrows)
-      for (let i = 0; i < totalEscrows; i++) {
+      const totalEscrows = Number(await contract.escrowCounter());
+      let latestEscrowId = null;
+
+      const normalizedUserAddress = userAddress.toLowerCase();
+
+      for (let i = totalEscrows - 1; i >= 0; i--) {
         const escrow = await contract.escrows(i);
 
+        const escrowBuyer = escrow.buyer.toLowerCase();
+        const escrowSeller = escrow.seller.toLowerCase();
+
+        const isActive = !escrow.released;
+
         if (
-          escrow.buyer.toLowerCase() === buyer.toLowerCase() &&
-          escrow.amount.toString() === price.toString()
+          userType === "Consumer" &&
+          escrowBuyer === normalizedUserAddress &&
+          isActive
         ) {
-          return i;
+          latestEscrowId = i;
+          break;
+        } else if (
+          userType === "Producer" &&
+          escrowSeller === normalizedUserAddress &&
+          isActive
+        ) {
+          latestEscrowId = i;
+          break;
         }
       }
+
+      if (latestEscrowId !== null) {
+        // console.log(`✅ Latest active escrow ID for ${userType}:`, latestEscrowId);
+        return latestEscrowId;
+      }
     } catch (error) {
-      console.error("Error fetching escrow ID:", error);
+      console.error("❌ Error fetching escrow ID:", error);
     }
 
+    console.log(`⚠️ No active escrow found for ${userType}.`);
     return null;
   };
 
@@ -88,8 +117,14 @@ const EnergyCard = ({
 
   const confirmEnergySent = async (escrowId) => {
     try {
-      const tx = await contract.confirmEnergyDelivery(escrowId);
+      const gasEstimate = await instance.confirmEnergyDelivery.estimateGas(
+        escrowId
+      );
+      const tx = await instance.confirmEnergyDelivery(escrowId, {
+        gasLimit: gasEstimate,
+      });
       await tx.wait();
+      console.log(tx);
       console.log("Energy delivery confirmed for escrow ID:", escrowId);
       toast.success("Energy delivery confirmed ");
     } catch (error) {
@@ -99,25 +134,34 @@ const EnergyCard = ({
 
   const releaseFunds = async (escrowId) => {
     try {
-      const tx = await contract.releaseFunds(escrowId);
-      await tx.wait();
-      console.log("Funds released for escrow ID:", escrowId);
+      const escrow = await contract.escrows(escrowId);
+
+      if (escrow.delivered) {
+        const tx = await contract.releaseFunds(escrowId);
+        await tx.wait();
+        toast.success("✅ Funds released for escrow ID:", escrowId);
+        navigate("/dashboard");
+      } else {
+        toast.info("⏳ Escrow not delivered yet. Funds cannot be released.");
+      }
     } catch (error) {
-      console.error("Error releasing funds:", error);
+      toast.error("❌ Error releasing funds:", error);
     }
   };
 
   const handleOpenDispute = async (escrowId, reason) => {
     try {
       const escrow = await contract.escrows(escrowId);
-      const respondent = escrow.seller;
+
+      const respondent = userType === "Producer" ? escrow.buyer : escrow.seller;
 
       const tx = await contract.initiateDispute(respondent, reason);
       await tx.wait();
-      console.log("Dispute opened for escrow ID:", escrowId);
+
+      console.log("⚖️ Dispute opened for escrow ID:", escrowId);
       toast.success("Dispute submitted successfully!");
     } catch (error) {
-      console.error("Error opening dispute:", error);
+      console.error("❌ Error opening dispute:", error);
       toast.error("Failed to submit dispute.");
     }
   };
@@ -126,15 +170,21 @@ const EnergyCard = ({
     const fetchEscrowIdForUser = async () => {
       if (!contract || !address) return;
 
-      const escrowId = await getEscrowIdForTransaction(address, Price);
+      // console.log("Fetching escrow for:", { address });
+
+      const escrowId = await getEscrowIdForTransaction(address, userType);
+      // console.log("Escrow ID Found:", escrowId);
+
       if (escrowId !== null) {
-        setEscrowIds((prev) => [...prev, escrowId]);
+        setEscrowIds((prev) =>
+          prev.includes(escrowId) ? prev : [...prev, escrowId]
+        );
       }
     };
 
     checkPurchaseHistory();
     fetchEscrowIdForUser();
-  }, [contract, address, Price]);
+  }, [contract, address]);
 
   // console.log(hasPurchased)
   return (
@@ -162,16 +212,26 @@ const EnergyCard = ({
             <div className="flex justify-between">
               <button
                 onClick={() => setDisputeModalOpen(true)}
-                className="border border-red-500 text-red-500 p-2 rounded-md hover:bg-red-100 transition-colors duration-300"
+                disabled={!escrowIds[0]?.delivered}
+                className={` p-2 rounded-md hover:bg-red-100 transition-colors duration-300 ${
+                  escrowIds[0]?.delivered
+                    ? "border border-red-500 text-red-500"
+                    : "border border-red-300 text-red-300 cursor-not-allowed"
+                }`}
               >
                 Open Dispute
               </button>
-              <buton
-                className="bg-green-500 text-white p-2 rounded-md hover:bg-green-600 transition-colors duration-300"
+              <button
+                className={`p-2 rounded-md transition-colors duration-300 ${
+                  escrowIds[0]?.delivered
+                    ? "bg-green-500 text-white hover:bg-green-600"
+                    : "bg-green-200 text-gray-200 cursor-not-allowed"
+                }`}
                 onClick={() => releaseFunds(escrowIds[0])}
+                disabled={!escrowIds[0]?.delivered}
               >
                 Release Funds
-              </buton>
+              </button>
             </div>
           ) : (
             <>
@@ -184,12 +244,22 @@ const EnergyCard = ({
             </>
           )
         ) : Available ? (
-          <button
-            className="w-full bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition-colors duration-300"
-            onClick={() => confirmEnergySent(escrowIds[0])}
-          >
-            Energy sent successfully!
-          </button>
+          <div className="flex justify-between">
+            <button
+              onClick={() => setDisputeModalOpen(true)}
+              className="border border-red-500 text-red-500 p-2 rounded-md hover:bg-red-100 transition-colors duration-300"
+            >
+              Open Dispute
+            </button>
+            {!escrowIds[0]?.delivered && (
+              <button
+                className=" bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition-colors duration-300"
+                onClick={() => confirmEnergySent(escrowIds[0])}
+              >
+                Energy sent!
+              </button>
+            )}
+          </div>
         ) : (
           <p className="text-gray-200">Order listed.... Be on the lookout!!</p>
         )}

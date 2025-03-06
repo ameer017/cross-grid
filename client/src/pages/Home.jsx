@@ -96,8 +96,13 @@ const Home = () => {
                 transition={{ duration: 1 }}
                 className="text-5xl md:text-7xl font-bold mb-6"
               >
-                Welcome to
-                <span className="ml-4 bg-gradient-to-r from-purple-500 via-teal-400 to-blue-500 bg-clip-text text-transparent">
+                Welcome to &nbsp;
+                <span
+                  className="text-transparent bg-clip-text inline-block"
+                  style={{
+                    WebkitTextStroke: "2px white",
+                  }}
+                >
                   Cross Grid
                 </span>
               </motion.h1>
@@ -108,7 +113,8 @@ const Home = () => {
                 transition={{ duration: 1, delay: 0.5 }}
                 className="text-lg md:text-2xl max-w-3xl leading-relaxed"
               >
-                We're committed to empowering communities to share and trade renewable energy efficiently and transparently.
+                We're committed to empowering communities to share and trade
+                renewable energy efficiently and transparently.
               </motion.p>
 
               <motion.div

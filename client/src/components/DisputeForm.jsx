@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 
 const DisputeForm = ({ isOpen, onClose, onSubmit, escrowId }) => {
   const [reason, setReason] = useState("");
-// console.log(escrowId)
+console.log(escrowId)
   if (!isOpen) return null;
 
   return (
