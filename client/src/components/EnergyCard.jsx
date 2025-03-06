@@ -68,7 +68,7 @@ const EnergyCard = ({
 
       for (let i = totalEscrows - 1; i >= 0; i--) {
         const escrow = await contract.escrows(i);
-
+        // console.log(escrow)
         const escrowBuyer = escrow.buyer.toLowerCase();
         const escrowSeller = escrow.seller.toLowerCase();
 
@@ -244,24 +244,27 @@ const EnergyCard = ({
             </>
           )
         ) : Available ? (
-          <div className="flex justify-between">
-            <button
-              onClick={() => setDisputeModalOpen(true)}
-              className="border border-red-500 text-red-500 p-2 rounded-md hover:bg-red-100 transition-colors duration-300"
-            >
-              Open Dispute
-            </button>
-            {!escrowIds[0]?.delivered && (
-              <button
-                className=" bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition-colors duration-300"
-                onClick={() => confirmEnergySent(escrowIds[0])}
-              >
-                Energy sent!
-              </button>
+          <>
+            {escrowIds.length > 0 && !escrowIds[0][4] && (
+              <div className="flex justify-between">
+                <button
+                  onClick={() => setDisputeModalOpen(true)}
+                  className="border border-red-500 text-red-500 p-2 rounded-md hover:bg-red-100 transition-colors duration-300"
+                >
+                  Open Dispute
+                </button>
+                <button
+                  className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition-colors duration-300 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                  onClick={() => confirmEnergySent(escrowIds[0].id)}
+                  disabled={escrowIds[0][4]} // ✅ Button disabled if delivered is true
+                >
+                  Energy sent!
+                </button>
+              </div>
             )}
-          </div>
+          </>
         ) : (
-          <p className="text-gray-200">Order listed.... Be on the lookout!!</p>
+          ""
         )}
       </div>
 
