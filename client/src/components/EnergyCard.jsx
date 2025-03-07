@@ -256,7 +256,7 @@ const EnergyCard = ({
                 <button
                   className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition-colors duration-300 disabled:bg-gray-400 disabled:cursor-not-allowed"
                   onClick={() => confirmEnergySent(escrowIds[0].id)}
-                  disabled={escrowIds[0][4]} // ✅ Button disabled if delivered is true
+                  disabled={escrowIds[0][4]}
                 >
                   Energy sent!
                 </button>

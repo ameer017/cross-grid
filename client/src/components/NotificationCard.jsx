@@ -15,7 +15,6 @@ const NotificationCard = ({ notification }) => {
     try {
       return ethers ? ethers.utils.toUtf8String(hex) : hex;
     } catch (error) {
-      // console.warn("Error decoding hex:", error);
       return hex;
     }
   };
@@ -29,8 +28,6 @@ const NotificationCard = ({ notification }) => {
     read,
   };
 
-  // console.log(parsedNotification)
-  // console.log(notification)
 
   return (
     <div className="flex items-center bg-white p-4 rounded-lg shadow-md">
