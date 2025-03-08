@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 
 const DisputeForm = ({ isOpen, onClose, onSubmit, escrowId }) => {
   const [reason, setReason] = useState("");
-console.log(escrowId)
+  // console.log(escrowId)
   if (!isOpen) return null;
 
   return (
@@ -38,12 +38,13 @@ console.log(escrowId)
             className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition"
             onClick={() => {
               if (reason.trim()) {
+                // remove space from both beginning and the end.
                 onSubmit(reason);
                 onClose();
               }
             }}
           >
-            Submit Dispute
+            Initiate Dispute
           </button>
         </div>
       </motion.div>
