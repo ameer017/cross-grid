@@ -14,6 +14,7 @@ const Loader = () => {
             <span className="word">Sustainability</span>
             <span className="word">Transparency</span>
           </div>
+          <p>...</p>
         </div>
       </div>
     </section>
