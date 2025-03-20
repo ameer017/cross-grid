@@ -119,13 +119,27 @@ const EnergyCard = ({
 
   const confirmEnergySent = async (escrowId) => {
     try {
-      const gasEstimate = await instance.confirmEnergyDelivery.estimateGas(
-        escrowId
-      );
-      const tx = await instance.confirmEnergyDelivery(escrowId, {
-        gasLimit: gasEstimate,
-      });
+      if (!instance) {
+        console.error("Contract instance is undefined");
+        return;
+      }
+  
+      if (!instance.confirmEnergyDelivery) {
+        console.error("confirmEnergyDelivery method is undefined");
+        return;
+      }
+  
+      if (!escrowId) {
+        console.error("Invalid escrowId:", escrowId);
+        return;
+      }
+  
+      const gasEstimate = await instance.confirmEnergyDelivery.estimateGas(escrowId)
+        .catch(() => ethers.utils.parseUnits("500000", "wei")); // Fallback gas
+  
+      const tx = await instance.confirmEnergyDelivery(escrowId, { gasLimit: gasEstimate });
       await tx.wait();
+  
       console.log(tx);
       console.log("Energy delivery confirmed for escrow ID:", escrowId);
       toast.success("Energy delivery confirmed ");
@@ -133,6 +147,7 @@ const EnergyCard = ({
       console.error("Error confirming energy delivery:", error);
     }
   };
+  
 
   const releaseFunds = async (escrowId) => {
     try {
