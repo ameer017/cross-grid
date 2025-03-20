@@ -47,7 +47,7 @@ const EnergyDashboard = () => {
               <TransactionsSummary />
             </div>
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-              <div className="col-span-4 bg-white p-6 rounded-lg shadow">
+              {/* <div className="col-span-4 bg-white p-6 rounded-lg shadow">
                 <h3 className="text-xl font-semibold mb-4">
                   Energy Transactions by Type
                 </h3>
@@ -61,7 +61,7 @@ const EnergyDashboard = () => {
                   Your daily power consumption over the last 30 days
                 </p>
                 <PowerConsumptionChart />
-              </div>
+              </div> */}
             </div>
           </div>
         )}

@@ -32,6 +32,8 @@ const EnergyCard = ({
   const navigate = useNavigate();
   const instance = useContractInstance(true);
 
+  // console.log(instance)
+
   const checkPurchaseHistory = async () => {
     if (!contract || !address) return;
 
