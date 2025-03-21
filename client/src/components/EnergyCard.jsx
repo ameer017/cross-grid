@@ -31,6 +31,7 @@ const EnergyCard = ({
   const [isDisputeModalOpen, setDisputeModalOpen] = useState(false);
   const navigate = useNavigate();
   const instance = useContractInstance(true);
+  const [escrowId, setEscrowId] = useState(null);
 
   // console.log(instance)
 
@@ -95,8 +96,12 @@ const EnergyCard = ({
 
       if (latestEscrowId !== null) {
         // console.log(`✅ Latest active escrow ID for ${userType}:`, latestEscrowId);
-        return latestEscrowId;
+        setEscrowId(latestEscrowId);
+      } else {
+        console.log(`⚠️ No active escrow found for ${userType}.`);
       }
+
+      return latestEscrowId;
     } catch (error) {
       console.error("❌ Error fetching escrow ID:", error);
     }
@@ -119,35 +124,47 @@ const EnergyCard = ({
 
   const confirmEnergySent = async (escrowId) => {
     try {
+      console.log("Received escrowId:", escrowId, typeof escrowId);
+
+      if (escrowId === null || escrowId === undefined) {
+        console.error("Invalid escrowId:", escrowId);
+        return;
+      }
+
       if (!instance) {
         console.error("Contract instance is undefined");
         return;
       }
-  
+
       if (!instance.confirmEnergyDelivery) {
         console.error("confirmEnergyDelivery method is undefined");
         return;
       }
-  
-      if (!escrowId) {
-        console.error("Invalid escrowId:", escrowId);
-        return;
-      }
-  
-      const gasEstimate = await instance.confirmEnergyDelivery.estimateGas(escrowId)
-        .catch(() => ethers.utils.parseUnits("500000", "wei")); // Fallback gas
-  
-      const tx = await instance.confirmEnergyDelivery(escrowId, { gasLimit: gasEstimate });
+
+      // console.log("Ethers object:", ethers.toBigInt);
+
+      // const escrowIdNumber = Number(escrowId);
+      const bigEscrowId = ethers.toBigInt(escrowId);
+      console.log(bigEscrowId);
+
+      const fallbackGas = ethers.parseUnits("5000000", "wei");
+      const gasEstimate = await instance.confirmEnergyDelivery
+        .estimateGas(bigEscrowId)
+        .catch(() => fallbackGas);
+
+      const tx = await instance.confirmEnergyDelivery(bigEscrowId, {
+        gasLimit: gasEstimate,
+      });
+
       await tx.wait();
-  
-      console.log(tx);
-      console.log("Energy delivery confirmed for escrow ID:", escrowId);
+
+      console.log("Transaction:", tx);
+      console.log("✅ Energy delivery confirmed for escrow ID:", escrowId);
       toast.success("Energy delivery confirmed ");
     } catch (error) {
-      console.error("Error confirming energy delivery:", error);
+      console.error("❌ Error confirming energy delivery:", error);
     }
   };
-  
 
   const releaseFunds = async (escrowId) => {
     try {
@@ -187,14 +204,15 @@ const EnergyCard = ({
     const fetchEscrowIdForUser = async () => {
       if (!contract || !address) return;
 
-      // console.log("Fetching escrow for:", { address });
-
       const escrowId = await getEscrowIdForTransaction(address, userType);
-      // console.log("Escrow ID Found:", escrowId);
 
       if (escrowId !== null) {
+        const escrow = await contract.escrows(escrowId);
+
         setEscrowIds((prev) =>
-          prev.includes(escrowId) ? prev : [...prev, escrowId]
+          prev.some((e) => e.id === escrowId)
+            ? prev
+            : [...prev, { id: escrowId, delivered: escrow.delivered }]
         );
       }
     };
@@ -204,6 +222,7 @@ const EnergyCard = ({
   }, [contract, address]);
 
   // console.log(hasPurchased)
+  // console.log(escrowId)
   return (
     <div>
       <div className="bg-white p-6 rounded-lg shadow-md cursor-pointer">
@@ -272,8 +291,10 @@ const EnergyCard = ({
                 </button>
                 <button
                   className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition-colors duration-300 disabled:bg-gray-400 disabled:cursor-not-allowed"
-                  onClick={() => confirmEnergySent(escrowIds[0].id)}
-                  disabled={escrowIds[0][4]}
+                  onClick={() =>
+                    escrowIds.length > 0 && confirmEnergySent(escrowId)
+                  }
+                  // disabled={escrowIds.length === 0 || !escrowIds[0]?.delivered}
                 >
                   Energy sent!
                 </button>
@@ -287,10 +308,10 @@ const EnergyCard = ({
 
       {isDisputeModalOpen && (
         <DisputeForm
-          escrowId={escrowIds[0]}
+          escrowId={escrowId}
           isOpen={isDisputeModalOpen}
           onClose={() => setDisputeModalOpen(false)}
-          onSubmit={(reason) => handleOpenDispute(escrowIds[0], reason)}
+          onSubmit={(reason) => handleOpenDispute(escrowId, reason)}
         />
       )}
 
