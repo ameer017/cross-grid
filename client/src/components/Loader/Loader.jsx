@@ -3,18 +3,17 @@ import "./Loader.css";
 
 const Loader = () => {
   return (
-    <section className="flex items-center justify-center h-screen">
-      <div className="card">
-        <div className="loader">
-          <p>loading</p>
-          <div className="words">
+    <section className="loader-container">
+      <div className="loader-card">
+        <div className="loader-text">
+          <p className="loader-label">Loading</p>
+          <div className="rotating-words">
             <span className="word">Decentralization</span>
             <span className="word">Energy</span>
             <span className="word">Resources</span>
             <span className="word">Sustainability</span>
             <span className="word">Transparency</span>
           </div>
-          <p>...</p>
         </div>
       </div>
     </section>
