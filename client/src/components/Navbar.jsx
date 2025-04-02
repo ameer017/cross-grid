@@ -54,7 +54,7 @@ const Navbar = () => {
   };
 
   return (
-    <header className="w-full h-20 flex justify-between items-center px-4 text-white bg-gray-900 shadow-md fixed top-0 left-0 z-30">
+    <header className="w-full h-20 flex justify-between items-center px-4 text-black bg-[#fcf252] shadow-md fixed top-0 left-0 z-30">
       <Link to="/" className="text-2xl font-bold">
         Cross Grid
       </Link>
@@ -63,31 +63,31 @@ const Navbar = () => {
         
         <Link
           to="/about"
-          className="hover:text-cyan-400 transition duration-300 hover:-translate-y-2"
+          className="hover:text-[#476124] transition duration-300 hover:-translate-y-2"
         >
           <FaInfo size={25} />
         </Link>
         <Link
           to="/dashboard"
-          className="hover:text-cyan-400 transition duration-300 hover:-translate-y-2"
+          className="hover:text-[#476124] transition duration-300 hover:-translate-y-2"
         >
           <CgProfile size={25} />
         </Link>
         <Link
           to="/list-energy"
-          className="hover:text-cyan-400 transition duration-300 hover:-translate-y-2"
+          className="hover:text-[#476124] transition duration-300 hover:-translate-y-2"
         >
           <MdCreateNewFolder size={25} />
         </Link>
         <Link
           to="/energy-marketplace"
-          className="hover:text-cyan-400 transition duration-300 hover:-translate-y-2"
+          className="hover:text-[#476124] transition duration-300 hover:-translate-y-2"
         >
           <RiShoppingCartLine size={25} />
         </Link>
         <Link
           to="/notifications"
-          className="hover:text-cyan-400 transition duration-300 hover:-translate-y-2"
+          className="hover:text-[#476124] transition duration-300 hover:-translate-y-2"
         >
           <IoMdNotifications size={25} />
         </Link>
