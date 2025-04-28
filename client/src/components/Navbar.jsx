@@ -99,13 +99,13 @@ const Navbar = () => {
         className="text-3xl md:hidden focus:outline-none z-40"
         aria-label={isMenuOpen ? "Close menu" : "Open menu"}
       >
-        {isMenuOpen ? <FaTimes /> : <FaBars />}
+        {isMenuOpen ? <FaTimes className="text-white" /> : <FaBars />}
       </button>
 
       <AnimatePresence>
         {isMenuOpen && (
           <motion.div
-            className="fixed top-0 left-0 w-full h-screen bg-gradient-to-r from-gray-900 to-gray-800 text-white flex flex-col items-center justify-center"
+            className="fixed top-0 left-0 w-full h-screen bg-gradient-to-r from-[#373123] to-gray-900 text-white flex flex-col items-center justify-center"
             variants={liquidVariants}
             initial="initial"
             animate="animate"

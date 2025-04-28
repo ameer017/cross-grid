@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import Loader from "../components/Loader/Loader";
 import Layout from "../components/Layout";
 import { useNavigate } from "react-router-dom";
+import { IoIosArrowRoundForward } from "react-icons/io";
 
 const BackgroundShapes = () => {
   const shapes = [
@@ -124,10 +125,10 @@ const Home = () => {
                 className="mt-10"
               >
                 <button
-                  className="bg-[#476124] text-white text-[14px] font-bold py-3 px-8 rounded-lg shadow-lg hover:shadow-2xl hover:scale-110 transform transition-transform duration-300"
+                  className="bg-[#476124] text-white text-[14px] font-bold py-3 px-8 rounded-lg shadow-lg hover:shadow-2xl hover:-translate-y-1 transform transition-transform duration-300 flex items-center gap-2"
                   onClick={getStarted}
                 >
-                  Get Started
+                  Get Started <IoIosArrowRoundForward size={20} />
                 </button>
               </motion.div>
             </div>
