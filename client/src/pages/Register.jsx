@@ -1,20 +1,63 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import useContract from "../hook/useContract";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import { useAppKitAccount } from "@reown/appkit/react";
+import { Contract } from "ethers";
+import { readOnlyProvider } from "../constant/readProvider";
+import ABI from "../util/EnergyTrading.json";
 
 const Register = () => {
   const { address } = useAppKitAccount();
   const [name, setName] = useState("");
-  const [userType, setUserType] = useState("Producer");
+  const [userType, setUserType] = useState();
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [eventMessage, setEventMessage] = useState("");
+  const [alreadyUser, setAlreadyUser] = useState()
+
+  const contract = new Contract(ABI.address, ABI.abi, readOnlyProvider);
 
   // console.log(address)
   const navigate = useNavigate();
   const instance = useContract(true);
+
+  useEffect(() => {
+    const fetchUserType = async () => {
+      try {
+        const allUsers = await contract.getAllUsers();
+
+    console.log(allUsers)
+
+       const user = allUsers.find(
+  (user) => user.toLowerCase() === address.toLowerCase()
+);
+
+       console.log(user);
+
+        if (!user){
+          setAlreadyUser(null)
+          toast.info("not a user")
+        }
+
+       if(user){
+        const isUserType = await contract.users(user);
+        const [name, userTypeValue, registered] = [isUserType[0], isUserType[1], isUserType[2]];
+
+        console.log
+        const type = userTypeValue === 1n ? "Producer" : "Consumer";
+
+        setAlreadyUser(type)
+        toast.info("already a user")
+
+       }
+      } catch (error) {
+        toast.error("Error fetching user profile:", error);
+      }
+    }
+
+    fetchUserType();
+  }, [address, contract])
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -79,9 +122,9 @@ const Register = () => {
     <>
     
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-6 lg:px-8">
-    {userType ? (
+    {alreadyUser ? (
       <p>
-        Already Registered as: {userType}
+        Already Registered as: {alreadyUser}
       </p>
     )
     : (
