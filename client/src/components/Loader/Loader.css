@@ -1,88 +1,70 @@
-.card {
-  --bg-color: #fafafa;
-  background-color: var(--bg-color);
-  padding: 1rem 2rem;
-  border-radius: 1.25rem;
-}
-.loader {
-  color: rgb(124, 124, 124);
-  font-family: "Poppins", sans-serif;
-  font-weight: 500;
-  font-size: 25px;
-  -webkit-box-sizing: content-box;
-  box-sizing: content-box;
-  height: 40px;
-  padding: 10px 10px;
-  display: -webkit-box;
-  display: -ms-flexbox;
+/* Layout */
+.loader-container {
   display: flex;
   align-items: center;
-  border-radius: 8px;
+  justify-content: center;
+  height: 100vh;
+  background-color: #f5f5f5;
 }
 
-.words {
-  overflow: hidden;
-  position: relative;
+.loader-card {
+  background-color: #ffffff;
+  padding: 2rem 3rem;
+  border-radius: 1.25rem;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
 }
-.words::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    var(--bg-color) 10%,
-    transparent 30%,
-    transparent 70%,
-    var(--bg-color) 90%
-  );
-  z-index: 20;
+
+/* Loader Text Styling */
+.loader-text {
+  font-family: "Poppins", sans-serif;
+  font-weight: 500;
+  font-size: 1.5rem;
+  color: #666;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  position: relative;
+  height: 40px;
+  overflow: hidden;
+}
+
+.loader-label {
+  margin: 0;
+  text-transform: capitalize;
+}
+
+/* Rotating Words */
+.rotating-words {
+  display: flex;
+  flex-direction: column;
+  animation: scrollWords 10s infinite ease-in-out;
+  -webkit-animation: scrollWords 10s infinite ease-in-out;
 }
 
 .word {
-  display: block;
-  height: 100%;
-  padding-left: 6px;
   color: #956afa;
-  animation: spin_4991 4s infinite;
+  height: 40px;
+  line-height: 40px;
 }
 
-@keyframes spin_4991 {
-  10% {
-    -webkit-transform: translateY(-102%);
-    transform: translateY(-102%);
+/* Keyframes */
+@keyframes scrollWords {
+  0%, 10% {
+    transform: translateY(0);
   }
-
-  25% {
-    -webkit-transform: translateY(-100%);
-    transform: translateY(-100%);
+  20%, 30% {
+    transform: translateY(-40px);
   }
-
-  35% {
-    -webkit-transform: translateY(-202%);
-    transform: translateY(-202%);
+  40%, 50% {
+    transform: translateY(-80px);
   }
-
-  50% {
-    -webkit-transform: translateY(-200%);
-    transform: translateY(-200%);
+  60%, 70% {
+    transform: translateY(-120px);
   }
-
-  60% {
-    -webkit-transform: translateY(-302%);
-    transform: translateY(-302%);
+  80%, 90% {
+    transform: translateY(-160px);
   }
-
-  75% {
-    -webkit-transform: translateY(-300%);
-    transform: translateY(-300%);
-  }
-
-  85% {
-    -webkit-transform: translateY(-402%);
-    transform: translateY(-402%);
-  }
-
   100% {
-    -webkit-transform: translateY(-400%);
-    transform: translateY(-400%);
+    transform: translateY(0);
   }
 }

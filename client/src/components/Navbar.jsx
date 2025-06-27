@@ -54,7 +54,7 @@ const Navbar = () => {
   };
 
   return (
-    <header className="w-full h-20 flex justify-between items-center px-4 text-white bg-gray-900 shadow-md fixed top-0 left-0 z-30">
+    <header className="w-full h-20 flex justify-between items-center px-4 text-black bg-[#fcf252] shadow-md fixed top-0 left-0 z-30">
       <Link to="/" className="text-2xl font-bold">
         Cross Grid
       </Link>
@@ -63,31 +63,31 @@ const Navbar = () => {
         
         <Link
           to="/about"
-          className="hover:text-cyan-400 transition duration-300 hover:-translate-y-2"
+          className="hover:text-[#476124] transition duration-300 hover:-translate-y-2"
         >
           <FaInfo size={25} />
         </Link>
         <Link
           to="/dashboard"
-          className="hover:text-cyan-400 transition duration-300 hover:-translate-y-2"
+          className="hover:text-[#476124] transition duration-300 hover:-translate-y-2"
         >
           <CgProfile size={25} />
         </Link>
         <Link
           to="/list-energy"
-          className="hover:text-cyan-400 transition duration-300 hover:-translate-y-2"
+          className="hover:text-[#476124] transition duration-300 hover:-translate-y-2"
         >
           <MdCreateNewFolder size={25} />
         </Link>
         <Link
           to="/energy-marketplace"
-          className="hover:text-cyan-400 transition duration-300 hover:-translate-y-2"
+          className="hover:text-[#476124] transition duration-300 hover:-translate-y-2"
         >
           <RiShoppingCartLine size={25} />
         </Link>
         <Link
           to="/notifications"
-          className="hover:text-cyan-400 transition duration-300 hover:-translate-y-2"
+          className="hover:text-[#476124] transition duration-300 hover:-translate-y-2"
         >
           <IoMdNotifications size={25} />
         </Link>
@@ -99,13 +99,13 @@ const Navbar = () => {
         className="text-3xl md:hidden focus:outline-none z-40"
         aria-label={isMenuOpen ? "Close menu" : "Open menu"}
       >
-        {isMenuOpen ? <FaTimes /> : <FaBars />}
+        {isMenuOpen ? <FaTimes className="text-white" /> : <FaBars />}
       </button>
 
       <AnimatePresence>
         {isMenuOpen && (
           <motion.div
-            className="fixed top-0 left-0 w-full h-screen bg-gradient-to-r from-gray-900 to-gray-800 text-white flex flex-col items-center justify-center"
+            className="fixed top-0 left-0 w-full h-screen bg-gradient-to-r from-[#373123] to-gray-900 text-white flex flex-col items-center justify-center"
             variants={liquidVariants}
             initial="initial"
             animate="animate"

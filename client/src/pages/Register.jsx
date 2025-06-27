@@ -73,10 +73,19 @@ const Register = () => {
     }
   };
 
+  // console.log(userType)
+
   return (
     <>
     
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-6 lg:px-8">
+    {userType ? (
+      <p>
+        Already Registered as: {userType}
+      </p>
+    )
+    : (
+
       <div className="max-w-md w-full bg-white shadow-lg rounded-lg p-6">
         <h2 className="text-center text-3xl font-extrabold text-gray-900 mb-6">
           Register User
@@ -126,7 +135,7 @@ const Register = () => {
               className={`w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white ${
                 loading
                   ? "bg-gray-400 cursor-not-allowed"
-                  : "bg-green-600 hover:bg-green-700 focus:ring-green-500"
+                  : "bg-[#476124] hover:bg-green-700 focus:ring-green-500"
               }`}
             >
               {loading ? "Registering..." : "Register"}
@@ -150,6 +159,7 @@ const Register = () => {
           </p>
         )}
       </div>
+    )}
     </div>
     </>
   );
