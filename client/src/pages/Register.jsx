@@ -14,7 +14,7 @@ const Register = () => {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [eventMessage, setEventMessage] = useState("");
-  const [alreadyUser, setAlreadyUser] = useState()
+  const [alreadyUser, setAlreadyUser] = useState();
 
   const contract = new Contract(ABI.address, ABI.abi, readOnlyProvider);
 
@@ -27,37 +27,40 @@ const Register = () => {
       try {
         const allUsers = await contract.getAllUsers();
 
-    console.log(allUsers)
+        // console.log(allUsers);
 
-       const user = allUsers.find(
-  (user) => user.toLowerCase() === address.toLowerCase()
-);
+        const user = allUsers.find(
+          (user) => user.toLowerCase() === address.toLowerCase()
+        );
 
-       console.log(user);
+        // console.log(user);
 
-        if (!user){
-          setAlreadyUser(null)
-          toast.info("not a user")
+        if (!user) {
+          setAlreadyUser(null);
+          toast.info("not a user");
         }
 
-       if(user){
-        const isUserType = await contract.users(user);
-        const [name, userTypeValue, registered] = [isUserType[0], isUserType[1], isUserType[2]];
+        if (user) {
+          const isUserType = await contract.users(user);
+          const [name, userTypeValue, registered] = [
+            isUserType[0],
+            isUserType[1],
+            isUserType[2],
+          ];
 
-        console.log
-        const type = userTypeValue === 1n ? "Producer" : "Consumer";
+          console.log;
+          const type = userTypeValue === 1n ? "Producer" : "Consumer";
 
-        setAlreadyUser(type)
-        toast.info("already a user")
-
-       }
+          setAlreadyUser(type);
+          toast.info("already a user");
+        }
       } catch (error) {
         toast.error("Error fetching user profile:", error);
       }
-    }
+    };
 
     fetchUserType();
-  }, [address, contract])
+  }, [address, contract]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -120,90 +123,87 @@ const Register = () => {
 
   return (
     <>
-    
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-6 lg:px-8">
-    {alreadyUser ? (
-      <p>
-        Already Registered as: {alreadyUser}
-      </p>
-    )
-    : (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-6 lg:px-8">
+        {alreadyUser ? (
+          <p>Already Registered as: {alreadyUser}</p>
+        ) : (
+          <div className="max-w-md w-full bg-white shadow-lg rounded-lg p-6">
+            <h2 className="text-center text-3xl font-extrabold text-gray-900 mb-6">
+              Register User
+            </h2>
+            <form className="space-y-6" onSubmit={handleSubmit}>
+              <div>
+                <label
+                  htmlFor="name"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Name
+                </label>
+                <input
+                  id="name"
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 bg-white text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                  placeholder="Enter your name"
+                  required
+                />
+              </div>
+              <div>
+                <label
+                  htmlFor="userType"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  User Type
+                </label>
+                <select
+                  id="userType"
+                  value={userType}
+                  onChange={(e) => setUserType(e.target.value)}
+                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 bg-white text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                  required
+                >
+                  <option value="None">none</option>
+                  <option value="Producer">Producer</option>
+                  <option value="Consumer">Consumer</option>
+                </select>
+              </div>
 
-      <div className="max-w-md w-full bg-white shadow-lg rounded-lg p-6">
-        <h2 className="text-center text-3xl font-extrabold text-gray-900 mb-6">
-          Register User
-        </h2>
-        <form className="space-y-6" onSubmit={handleSubmit}>
-          <div>
-            <label
-              htmlFor="name"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Name
-            </label>
-            <input
-              id="name"
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 bg-white text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-              placeholder="Enter your name"
-              required
-            />
+              <div>
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className={`w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white ${
+                    loading
+                      ? "bg-gray-400 cursor-not-allowed"
+                      : "bg-[#476124] hover:bg-green-700 focus:ring-green-500"
+                  }`}
+                >
+                  {loading ? "Registering..." : "Register"}
+                </button>
+              </div>
+            </form>
+
+            {message && (
+              <p
+                className={`mt-4 text-sm font-medium  ${
+                  message.startsWith("Error")
+                    ? "text-red-500 "
+                    : "text-green-500"
+                }`}
+              >
+                {message}
+              </p>
+            )}
+
+            {eventMessage && (
+              <p className="mt-4 text-sm font-medium text-blue-500">
+                {eventMessage}
+              </p>
+            )}
           </div>
-          <div>
-            <label
-              htmlFor="userType"
-              className="block text-sm font-medium text-gray-700"
-            >
-              User Type
-            </label>
-            <select
-              id="userType"
-              value={userType}
-              onChange={(e) => setUserType(e.target.value)}
-              className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 bg-white text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-              required
-            >
-              <option value="None">none</option>
-              <option value="Producer">Producer</option>
-              <option value="Consumer">Consumer</option>
-            </select>
-          </div>
-
-          <div>
-            <button
-              type="submit"
-              disabled={loading}
-              className={`w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white ${
-                loading
-                  ? "bg-gray-400 cursor-not-allowed"
-                  : "bg-[#476124] hover:bg-green-700 focus:ring-green-500"
-              }`}
-            >
-              {loading ? "Registering..." : "Register"}
-            </button>
-          </div>
-        </form>
-
-        {message && (
-          <p
-            className={`mt-4 text-sm font-medium  ${
-              message.startsWith("Error") ? "text-red-500 " : "text-green-500"
-            }`}
-          >
-            {message}
-          </p>
-        )}
-
-        {eventMessage && (
-          <p className="mt-4 text-sm font-medium text-blue-500">
-            {eventMessage}
-          </p>
         )}
       </div>
-    )}
-    </div>
     </>
   );
 };
